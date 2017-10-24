@@ -1,0 +1,46 @@
+Import('RTT_ROOT')
+Import('rtconfig')
+from building import *
+
+cwd     = os.path.join(str(Dir('#')), 'drivers')
+
+# add the general drivers.
+src = Split("""
+board.c
+platform.c
+stm32f4xx_it.c
+usart.c
+""")
+
+# add Ethernet drivers.
+#if GetDepend('RT_USING_LWIP'):
+#    src += ['stm32f4xx_eth.c']
+
+# add gpio drivers.
+if GetDepend('RT_USING_PIN'):
+    src += ['gpio.c']
+
+# add sdio drivers.
+if GetDepend('RT_USING_SDIO'):
+	src += ['sdmmc.c']
+
+# add spi drivers.
+if GetDepend('RT_USING_SPI'):
+    src += ['spibus.c']
+
+# add iic drivers.
+if GetDepend('RT_USING_I2C'):
+	src += ['stm32_i2c.c']
+
+# add camera driver.
+if GetDepend('RT_USING_CAMERA'):
+    src += ['dcmi.c']
+    if GetDepend('RT_CAMERA_USING_OV2640'):
+        src += ['ov2640.c']
+
+CPPPATH = [cwd]
+
+group = DefineGroup('Drivers', src, depend = [''], CPPPATH = CPPPATH)
+
+Return('group')
+

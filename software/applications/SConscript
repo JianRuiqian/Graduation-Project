@@ -1,0 +1,25 @@
+Import('RTT_ROOT')
+Import('rtconfig')
+from building import *
+
+cwd = os.path.join(str(Dir('#')), 'applications')
+
+# add the general applications.
+src	= Split('''
+application.c
+startup.c
+''')
+
+if GetDepend(['RT_USING_RYM']):
+    src += ['tofile.c']
+
+if GetDepend(['RT_USING_LWIP']):
+    src += ['ping.c']
+    if GetDepend(['RT_USING_CAMERA']):
+        src += ['netcam.c']
+
+CPPPATH = [cwd, str(Dir('#'))]
+
+group = DefineGroup('Applications', src, depend = [''], CPPPATH = CPPPATH)
+
+Return('group')
