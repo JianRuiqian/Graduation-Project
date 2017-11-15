@@ -36,7 +36,7 @@ void rt_init_thread_entry(void* parameter)
 #ifdef RT_USING_COMPONENTS_INIT
     rt_components_init();
 #endif  /* RT_USING_COMPONENTS_INIT */
-    
+
     /* execute script for wifi */
     {
         char cmd[] = "/mrvl/init.sh";

@@ -1,0 +1,16 @@
+Import('RTT_ROOT')
+Import('rtconfig')
+from building import *
+
+cwd = os.path.join(str(Dir('#')), 'motor')
+
+src	= []
+
+if GetDepend(['MOTOR_USING_DC_MOTOR']):
+    src += ['dc_motor.c']
+
+CPPPATH = [cwd, str(Dir('#'))]
+
+group = DefineGroup('Motor', src, depend = ['RT_USING_MOTOR'], CPPPATH = CPPPATH)
+
+Return('group')

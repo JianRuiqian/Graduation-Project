@@ -32,11 +32,16 @@ if GetDepend('RT_USING_SPI'):
 if GetDepend('RT_USING_I2C'):
 	src += ['stm32_i2c.c']
 
-# add camera driver.
+# add camera drivers.
 if GetDepend('RT_USING_CAMERA'):
     src += ['dcmi.c']
     if GetDepend('RT_CAMERA_USING_OV2640'):
         src += ['ov2640.c']
+
+#add motor drivers.
+if GetDepend('RT_USING_MOTOR'):
+    if GetDepend('MOTOR_USING_DC_MOTOR'):
+        src += ['h_bridge.c']
 
 CPPPATH = [cwd]
 

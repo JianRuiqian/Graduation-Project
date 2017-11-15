@@ -213,4 +213,10 @@
 /* Camrea use ov2640 */
 #define RT_CAMERA_USING_OV2640
 
+/* Using Motor framework */
+#define RT_USING_MOTOR
+#define MOTOR_USING_DC_MOTOR
+#define DC_MOTOR_USING_MOTOR1
+#define DC_MOTOR_USING_MOTOR2
+
 #endif
