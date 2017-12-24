@@ -1,6 +1,7 @@
 #include <rtthread.h>
-#include "lwip/api.h"
-#include "lwip/inet.h"
+#include <lwip/api.h>
+#include <lwip/inet.h>
+#include <lwip/sockets.h>
 /* TODO: remove these header files */
 #include "ov2640.h"
 #include "dcmi.h"
@@ -22,6 +23,8 @@
 #define netcam_dbg(fmt, ...)
 #endif
 
+#define MJPEG_BOUNDARY "boundarydonotcross"
+
 /* -------------------------------------------------------------------------- */
 static struct
 {
@@ -33,6 +36,8 @@ static struct
     rt_uint8_t  *frame_head;
     rt_uint8_t  *frame_tail;
 }netcam;
+
+static char g_send_buf[1024];
 
 static rt_sem_t sem;
 
@@ -152,6 +157,142 @@ static void netcam_push_frame(void)
 }
 
 /* -------------------------------------------------------------------------- */
+static int send_first_response(int client)
+{
+    g_send_buf[0] = 0;
+
+    rt_snprintf(g_send_buf, 1024,
+             "HTTP/1.0 200 OK\r\n"
+             "Connection: close\r\n"
+             "Server: MJPG-Streamer/0.2\r\n"
+             "Cache-Control: no-store, no-cache, must-revalidate, pre-check=0,"
+             " post-check=0, max-age=0\r\n"
+             "Pragma: no-cache\r\n"
+             "Expires: Mon, 3 Jan 2000 12:34:56 GMT\r\n"
+             "Content-Type: multipart/x-mixed-replace;boundary="
+             MJPEG_BOUNDARY "\r\n"
+             "\r\n"
+             "--" MJPEG_BOUNDARY "\r\n");
+    if (send(client, g_send_buf, strlen(g_send_buf), 0) < 0)
+    {
+        lwip_close(client);
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+static int mjpeg_send_stream(int client, void *data, int size)
+{
+    g_send_buf[0] = 0;
+
+    snprintf(g_send_buf, 1024,
+             "Content-Type: image/jpeg\r\n"
+             "Content-Length: %d\r\n"
+             "\r\n", size);
+    if (send(client, g_send_buf, strlen(g_send_buf), 0) < 0)
+    {
+        lwip_close(client);
+        return -1;
+    }
+
+    if (send(client, data, size, 0) < 0)
+    {
+        lwip_close(client);
+        return -1;
+    }
+
+    g_send_buf[0] = 0;
+    snprintf(g_send_buf, 1024, "\r\n--" MJPEG_BOUNDARY "\r\n");
+    if (send(client, g_send_buf, strlen(g_send_buf), 0) < 0)
+    {
+        lwip_close(client);
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+#if 1
+static void netcam_thread_entry(void* parameter)
+{
+    int on;
+    int srv_sock = -1;
+    struct sockaddr_in addr;
+    socklen_t sock_len = sizeof(struct sockaddr_in);
+    
+    srv_sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (srv_sock < 0)
+    {
+        printf("netcam: create server socket failed due to (%s)\n",
+              strerror(errno));
+        goto exit;
+    }
+
+    memset(&addr, 0, sock_len);
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(NETCAM_DEFAULT_PORT);
+    addr.sin_addr.s_addr = INADDR_ANY;
+
+    /* ignore "socket already in use" errors */
+    on = 1;
+    lwip_setsockopt(srv_sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
+    lwip_setsockopt(srv_sock, IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on));
+
+    if (bind(srv_sock, (struct sockaddr *)&addr, sock_len) != 0)
+    {
+        printf("netcam: bind() failed due to (%s)\n",
+              strerror(errno));
+        goto exit;
+    }
+
+    if (listen(srv_sock , RT_LWIP_TCP_PCB_NUM) != 0)
+    {
+        printf("netcam: listen() failed due to (%s)\n",
+              strerror(errno));
+        goto exit;
+    }
+
+    while (1)
+    {
+        struct sockaddr_in client_addr;
+        int client = accept(srv_sock, (struct sockaddr *)&client_addr, &sock_len);
+        if (client < 0)
+            continue;
+        
+        printf("netcam: client connected\n");
+        if (send_first_response(client) < 0)
+        {
+            client = -1;
+            continue;
+        }
+        
+        /* open the camera */
+        _camera_open();
+        
+        while (rt_sem_take(sem, 1000) == RT_EOK)
+        {
+            int err;
+            
+            if (netcam_pull_frame() != RT_NULL)
+            {
+                err = mjpeg_send_stream(client, (void *)netcam.frame_buff, netcam.frame_size);
+                netcam_push_frame();
+                
+                if (err < 0) break;
+            }
+        }
+        
+        /* close the camera */
+        _camera_close();
+    }
+    
+    exit:
+    if (srv_sock >= 0) lwip_close(srv_sock);
+}
+#else
 static void netcam_thread_entry(void* parameter)
 {
     struct netconn *conn;
@@ -209,6 +350,7 @@ static void netcam_thread_entry(void* parameter)
         }
     }
 }
+#endif
 
 /* -------------------------------------------------------------------------- */
 int netcam_init(void)
