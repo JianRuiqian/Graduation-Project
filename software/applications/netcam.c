@@ -28,33 +28,37 @@
 /* -------------------------------------------------------------------------- */
 static struct
 {
-    rt_uint8_t  *fifo_buff;
-    rt_uint32_t  fifo_size;
+    struct {
+        rt_uint8_t *buff;
+        rt_uint32_t size;
+    }fifo;
     
-    rt_uint8_t  *frame_buff;
-    rt_uint32_t  frame_size;
-    rt_uint8_t  *frame_head;
-    rt_uint8_t  *frame_tail;
+    struct {
+        rt_uint8_t *buff;
+        rt_uint32_t size;
+        rt_uint8_t *head;
+        rt_uint8_t *tail;
+    }frame;
+    
+    rt_sem_t frame_ready;
 }netcam;
 
 static char g_send_buf[1024];
-
-static rt_sem_t sem;
 
 /* -------------------------------------------------------------------------- */
 static void _camera_open(void)
 {
     /* allocate fifo memory */
-    netcam.fifo_size = NETCAM_FIFO_SIZE;
-    netcam.fifo_buff = rt_malloc(netcam.fifo_size);
-    RT_ASSERT(netcam.fifo_buff);
-    netcam.frame_head = netcam.fifo_buff;
-    netcam.frame_tail = netcam.fifo_buff;
+    netcam.fifo.size = NETCAM_FIFO_SIZE;
+    netcam.fifo.buff = rt_malloc(netcam.fifo.size);
+    RT_ASSERT(netcam.fifo.buff);
+    netcam.frame.head = netcam.fifo.buff;
+    netcam.frame.tail = netcam.fifo.buff;
     
     /* (re)config camera and start transfer */
     OV2640_JPEG_Mode();
     OV2640_OutSize_Set(640, 480);
-    dcmi_xfer_config(netcam.fifo_buff, netcam.fifo_size);
+    dcmi_xfer_config(netcam.fifo.buff, netcam.fifo.size);
     dcmi_xfer_start();
 }
 
@@ -65,9 +69,9 @@ static void _camera_close(void)
     dcmi_xfer_stop();
     
     /* free fifo memory */
-    rt_free(netcam.fifo_buff);
-    netcam.fifo_buff = RT_NULL;
-    netcam.fifo_size = 0;
+    rt_free(netcam.fifo.buff);
+    netcam.fifo.buff = RT_NULL;
+    netcam.fifo.size = 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -88,21 +92,21 @@ static void _camera_resume(void)
 /* weak function in dmci.c */
 void dcmi_interrupt_frame_callback(void)
 {
-    netcam.frame_tail = netcam.fifo_buff + netcam.fifo_size - dcmi_xfer_remaining();
+    netcam.frame.tail = netcam.fifo.buff + netcam.fifo.size - dcmi_xfer_remaining();
     
     /* Check whether capture a bad frame */
-    if (netcam.frame_head[0] == 0xff && netcam.frame_head[1] == 0xd8)
+    if (netcam.frame.head[0] == 0xff && netcam.frame.head[1] == 0xd8)
     {
         _camera_suspend();
-        rt_sem_release(sem);
+        rt_sem_release(netcam.frame_ready);
     }
     /* Skip the bad frame and point to next frame */
     else
     {
-        if (netcam.frame_tail == netcam.fifo_buff + netcam.fifo_size)
-            netcam.frame_head = netcam.fifo_buff;
+        if (netcam.frame.tail == netcam.fifo.buff + netcam.fifo.size)
+            netcam.frame.head = netcam.fifo.buff;
         else
-            netcam.frame_head = netcam.frame_tail;
+            netcam.frame.head = netcam.frame.tail;
     }
 }
 
@@ -110,52 +114,53 @@ void dcmi_interrupt_frame_callback(void)
 static rt_uint8_t* netcam_pull_frame(void)
 {
     /* Get a frame in the same dma transmitting procedure */
-    if (netcam.frame_head < netcam.frame_tail)
+    if (netcam.frame.head < netcam.frame.tail)
     {
-        netcam.frame_size = netcam.frame_tail - netcam.frame_head;
-        netcam.frame_buff = rt_malloc(netcam.frame_size);
-        if (netcam.frame_buff != RT_NULL)
-            memcpy(netcam.frame_buff, netcam.frame_head, netcam.frame_size);
+        netcam.frame.size = netcam.frame.tail - netcam.frame.head;
+        netcam.frame.buff = rt_malloc(netcam.frame.size);
+        if (netcam.frame.buff != RT_NULL)
+            memcpy(netcam.frame.buff, netcam.frame.head, netcam.frame.size);
     }
     /* Get a frame in two different dma transmitting procedures */
-    else if (netcam.frame_head > netcam.frame_tail)
+    else if (netcam.frame.head > netcam.frame.tail)
     {
-        netcam.frame_size = netcam.frame_tail - netcam.frame_head + netcam.fifo_size;
-        netcam.frame_buff = rt_malloc(netcam.frame_size);
-        if (netcam.frame_buff != RT_NULL)
+        netcam.frame.size = netcam.frame.tail - netcam.frame.head + netcam.fifo.size;
+        netcam.frame.buff = rt_malloc(netcam.frame.size);
+        if (netcam.frame.buff != RT_NULL)
         {
             rt_uint32_t size0, size1;
             
-            size0 = netcam.fifo_buff + netcam.fifo_size - netcam.frame_head;
-            size1 = netcam.frame_size - size0;
-            memcpy(netcam.frame_buff, netcam.frame_head, size0);
-            memcpy(netcam.frame_buff + size0, netcam.fifo_buff, size1);
+            size0 = netcam.fifo.buff + netcam.fifo.size - netcam.frame.head;
+            size1 = netcam.frame.size - size0;
+            memcpy(netcam.frame.buff, netcam.frame.head, size0);
+            memcpy(netcam.frame.buff + size0, netcam.fifo.buff, size1);
         }
     }
     
-    if (netcam.frame_buff == RT_NULL)
-        rt_kprintf("no room for netcam.frame_buff\n");
+    if (netcam.frame.buff == RT_NULL)
+        rt_kprintf("no room for netcam.frame.buff\n");
     
     /* Point to the next frame */
-    if (netcam.frame_tail == netcam.fifo_buff + netcam.fifo_size)
-        netcam.frame_head = netcam.fifo_buff;
+    if (netcam.frame.tail == netcam.fifo.buff + netcam.fifo.size)
+        netcam.frame.head = netcam.fifo.buff;
     else
-        netcam.frame_head = netcam.frame_tail;
+        netcam.frame.head = netcam.frame.tail;
     
     /* resume camera */
     _camera_resume();
     
-    return netcam.frame_buff;
+    return netcam.frame.buff;
 }
 
 /* -------------------------------------------------------------------------- */
 static void netcam_push_frame(void)
 {
-    rt_free(netcam.frame_buff);
-    netcam.frame_buff = RT_NULL;
-    netcam.frame_size = 0;
+    rt_free(netcam.frame.buff);
+    netcam.frame.buff = RT_NULL;
+    netcam.frame.size = 0;
 }
 
+#if 1
 /* -------------------------------------------------------------------------- */
 static int send_first_response(int client)
 {
@@ -175,7 +180,7 @@ static int send_first_response(int client)
              "--" MJPEG_BOUNDARY "\r\n");
     if (send(client, g_send_buf, strlen(g_send_buf), 0) < 0)
     {
-        lwip_close(client);
+        closesocket(client);
         return -1;
     }
 
@@ -193,13 +198,13 @@ static int mjpeg_send_stream(int client, void *data, int size)
              "\r\n", size);
     if (send(client, g_send_buf, strlen(g_send_buf), 0) < 0)
     {
-        lwip_close(client);
+        closesocket(client);
         return -1;
     }
 
     if (send(client, data, size, 0) < 0)
     {
-        lwip_close(client);
+        closesocket(client);
         return -1;
     }
 
@@ -207,7 +212,7 @@ static int mjpeg_send_stream(int client, void *data, int size)
     snprintf(g_send_buf, 1024, "\r\n--" MJPEG_BOUNDARY "\r\n");
     if (send(client, g_send_buf, strlen(g_send_buf), 0) < 0)
     {
-        lwip_close(client);
+        closesocket(client);
         return -1;
     }
 
@@ -215,14 +220,13 @@ static int mjpeg_send_stream(int client, void *data, int size)
 }
 
 /* -------------------------------------------------------------------------- */
-#if 1
 static void netcam_thread_entry(void* parameter)
 {
     int on;
     int srv_sock = -1;
     struct sockaddr_in addr;
     socklen_t sock_len = sizeof(struct sockaddr_in);
-    
+
     srv_sock = socket(AF_INET, SOCK_STREAM, 0);
     if (srv_sock < 0)
     {
@@ -238,8 +242,8 @@ static void netcam_thread_entry(void* parameter)
 
     /* ignore "socket already in use" errors */
     on = 1;
-    lwip_setsockopt(srv_sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
-    lwip_setsockopt(srv_sock, IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on));
+    setsockopt(srv_sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
+    setsockopt(srv_sock, IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on));
 
     if (bind(srv_sock, (struct sockaddr *)&addr, sock_len) != 0)
     {
@@ -262,35 +266,45 @@ static void netcam_thread_entry(void* parameter)
         if (client < 0)
             continue;
         
-        printf("netcam: client connected\n");
-        if (send_first_response(client) < 0)
+        if (recv(client, g_send_buf, sizeof(g_send_buf)-1, 0) &&
+            strncmp(g_send_buf, "GET /?action=stream", 19) == 0)
         {
-            client = -1;
-            continue;
-        }
-        
-        /* open the camera */
-        _camera_open();
-        
-        while (rt_sem_take(sem, 1000) == RT_EOK)
-        {
-            int err;
-            
-            if (netcam_pull_frame() != RT_NULL)
+            if (send_first_response(client) < 0)
             {
-                err = mjpeg_send_stream(client, (void *)netcam.frame_buff, netcam.frame_size);
-                netcam_push_frame();
-                
-                if (err < 0) break;
+                client = -1;
+                continue;
             }
+
+            printf("netcam: client connected\n");
+            /* open the camera */
+            _camera_open();
+
+            while (rt_sem_take(netcam.frame_ready, 1000) == RT_EOK)
+            {
+                int err;
+                
+                if (netcam_pull_frame() != RT_NULL)
+                {
+                    err = mjpeg_send_stream(client, (void *)netcam.frame.buff, netcam.frame.size);
+                    netcam_push_frame();
+                    
+                    if (err < 0)
+                    {
+                        client = -1;
+                        break;
+                    }
+                }
+            }
+
+            printf("netcam: client disconnected\n");
+            /* close the camera */
+            _camera_close();
         }
-        
-        /* close the camera */
-        _camera_close();
+        else closesocket(client);
     }
-    
+
     exit:
-    if (srv_sock >= 0) lwip_close(srv_sock);
+    if (srv_sock >= 0) closesocket(srv_sock);
 }
 #else
 static void netcam_thread_entry(void* parameter)
@@ -332,8 +346,8 @@ static void netcam_thread_entry(void* parameter)
                 if (netcam_pull_frame() != RT_NULL)
                 {
                     err = netconn_write(newconn,
-                                        netcam.frame_buff,
-                                        netcam.frame_size,
+                                        netcam.frame.buff,
+                                        netcam.frame.size,
                                         NETCONN_COPY);
                     netcam_push_frame();
                     
@@ -357,7 +371,7 @@ int netcam_init(void)
 {
     rt_thread_t tid;
     
-    sem = rt_sem_create("frmrx", 0, RT_IPC_FLAG_FIFO);
+    netcam.frame_ready = rt_sem_create("frmrdy", 0, RT_IPC_FLAG_FIFO);
     tid = rt_thread_create("netcam", netcam_thread_entry, 
         RT_NULL, 512, NETCAM_THREAD_PRIORITY, 10);
     

@@ -1,0 +1,19 @@
+/* global */
+body {
+    background-color: #3A3E48; margin: 0;
+    padding: 0; font: 16px Lucida, sans-serif;
+}
+/*  */
+div.content {
+    width: 640px; margin: 1em 1em; padding: 1em;
+    background-color: #fff; border-radius: 1.5em;
+    float: left;
+}
+/* mjpeg-stream */
+div img#stream {
+    border-radius: 0.5em; width: 640px; height: 480px;
+}
+/*  */
+a:link, a:visited {
+    color: #69c; text-decoration: none;
+}

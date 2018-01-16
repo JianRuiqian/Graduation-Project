@@ -17,6 +17,8 @@ if GetDepend(['RT_USING_LWIP']):
     src += ['ping.c']
     if GetDepend(['RT_USING_CAMERA']):
         src += ['netcam.c']
+    if GetDepend(['PKG_USING_MONGOOSE']):
+        src += ['httpd.c']
 
 CPPPATH = [cwd, str(Dir('#'))]
 
