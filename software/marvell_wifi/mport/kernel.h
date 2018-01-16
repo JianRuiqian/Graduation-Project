@@ -18,6 +18,10 @@
 #define vfree(x)                        rt_free(x)
 
 /* tick */
+#if RTTHREAD_VERSION < 30000
+extern void rt_hw_us_delay(int us);
+#endif
+
 #define mdelay(ms)                      mmcsd_delay_ms(ms)
 #define udelay(us)                      rt_hw_us_delay(us)
 #define schedule_timeout                rt_thread_delay

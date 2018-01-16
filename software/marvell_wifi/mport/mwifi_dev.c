@@ -2,8 +2,11 @@
 #include "netdevice.h"
 
 /* Net Device */
-
+#if RTTHREAD_VERSION < 30000
 static rt_err_t rt_mwifi_control(rt_device_t dev, rt_uint8_t cmd, void *args)
+#else
+static rt_err_t rt_mwifi_control(rt_device_t dev, int cmd, void *args)
+#endif
 {
 	switch(cmd)
 	{
