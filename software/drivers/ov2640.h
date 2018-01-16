@@ -1,7 +1,7 @@
 #ifndef _OV2640_H_
 #define _OV2640_H_
 
-#include <rtthread.h>
+#include <stdint.h>
 
 #define OV2640_PID                  0x2642
 #define OV2640_ADDR                 0x30
@@ -92,20 +92,20 @@
 #define OV2640_SENSOR_HISTO_LOW     0x61
 #define OV2640_SENSOR_HISTO_HIGH    0x62
 
-int  ov2640_init(void);//OV2640摄像头初始化
-void OV2640_JPEG_Mode(void);//OV2640切换为JPEG模式
-void OV2640_RGB565_Mode(void);//OV2640切换为RGB565模式
-void OV2640_Auto_Exposure(rt_uint8_t level);//OV2640自动曝光等级设置
-void OV2640_Light_Mode(rt_uint8_t mode);//白平衡设置
-void OV2640_Color_Saturation(rt_uint8_t sat);//色度设置
-void OV2640_Brightness(rt_uint8_t bright);//亮度设置
-void OV2640_Contrast(rt_uint8_t contrast);//对比度设置
-void OV2640_Special_Effects(rt_uint8_t eft);//特效设置
-void OV2640_Color_Bar(rt_uint8_t sw);//彩条测试
+int  ov2640_init(void);                     //OV2640摄像头初始化
+void OV2640_JPEG_Mode(void);                //OV2640切换为JPEG模式
+void OV2640_RGB565_Mode(void);              //OV2640切换为RGB565模式
+void OV2640_Auto_Exposure(uint8_t level);   //OV2640自动曝光等级设置
+void OV2640_Light_Mode(uint8_t mode);       //白平衡设置
+void OV2640_Color_Saturation(uint8_t sat);  //色度设置
+void OV2640_Brightness(uint8_t bright);     //亮度设置
+void OV2640_Contrast(uint8_t contrast);     //对比度设置
+void OV2640_Special_Effects(uint8_t eft);   //特效设置
+void OV2640_Color_Bar(uint8_t sw);          //彩条测试
 
-void OV2640_Window_Set(rt_uint16_t sx,rt_uint16_t sy,rt_uint16_t width,rt_uint16_t height);//设置图像输出窗口
-int  OV2640_OutSize_Set(rt_uint16_t width,rt_uint16_t height);//设置图像输出大小
-int  OV2640_ImageWin_Set(rt_uint16_t offx,rt_uint16_t offy,rt_uint16_t width,rt_uint16_t height);//设置图像开窗大小
-int  OV2640_ImageSize_Set(rt_uint16_t width,rt_uint16_t height);//设置图像尺寸大小
+void OV2640_Window_Set(uint16_t sx, uint16_t sy, uint16_t width, uint16_t height);//设置图像输出窗口
+int  OV2640_OutSize_Set(uint16_t width, uint16_t height);   //设置图像输出大小
+int  OV2640_ImageWin_Set(uint16_t offx, uint16_t offy, uint16_t width, uint16_t height);//设置图像开窗大小
+int  OV2640_ImageSize_Set(uint16_t width, uint16_t height); //设置图像尺寸大小
 
 #endif  /* _OV2640_H_ */

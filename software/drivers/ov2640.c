@@ -85,10 +85,10 @@ void OV2640_RGB565_Mode(void)
 
 //OV2640自动曝光等级设置
 //level:0~4
-void OV2640_Auto_Exposure(u8 level)
+void OV2640_Auto_Exposure(uint8_t level)
 {
-	u8 i;
-	u8 *p = (u8 *)OV2640_AUTOEXPOSURE_LEVEL[level];
+	uint8_t i;
+	uint8_t *p = (uint8_t *)OV2640_AUTOEXPOSURE_LEVEL[level];
     
 	for(i = 0; i < 4; i++)
 	{
@@ -102,11 +102,11 @@ void OV2640_Auto_Exposure(u8 level)
 //2,阴天cloudy
 //3,办公室office
 //4,家里home
-void OV2640_Light_Mode(u8 mode)
+void OV2640_Light_Mode(uint8_t mode)
 {
-	u8 regccval = 0x5e;//Sunny 
-	u8 regcdval = 0x41;
-	u8 regceval = 0x54;
+	uint8_t regccval = 0x5e;//Sunny 
+	uint8_t regcdval = 0x41;
+	uint8_t regceval = 0x54;
     
 	switch(mode)
 	{
@@ -144,9 +144,9 @@ void OV2640_Light_Mode(u8 mode)
 //2,0
 //3,+1
 //4,+2
-void OV2640_Color_Saturation(u8 sat)
+void OV2640_Color_Saturation(uint8_t sat)
 {
-	u8 reg7dval = ((sat + 2) << 4) | 0x08;
+	uint8_t reg7dval = ((sat + 2) << 4) | 0x08;
     
     ov2640_wreg(OV2640_RA_DLMT, OV2640_DSP);
     ov2640_wreg(0x7c, 0x00);
@@ -162,7 +162,7 @@ void OV2640_Color_Saturation(u8 sat)
 //2,(0X20) 0
 //3,(0X30)+1
 //4,(0X40)+2
-void OV2640_Brightness(u8 bright)
+void OV2640_Brightness(uint8_t bright)
 {
     ov2640_wreg(OV2640_RA_DLMT, OV2640_DSP);
     ov2640_wreg(0x7c, 0x00);
@@ -178,10 +178,10 @@ void OV2640_Brightness(u8 bright)
 //2,0
 //3,+1
 //4,+2
-void OV2640_Contrast(u8 contrast)
+void OV2640_Contrast(uint8_t contrast)
 {
-	u8 reg7d0val=0x20;//默认为普通模式
-	u8 reg7d1val=0x20;
+	uint8_t reg7d0val=0x20;//默认为普通模式
+	uint8_t reg7d1val=0x20;
     
   	switch(contrast)
 	{
@@ -221,11 +221,11 @@ void OV2640_Contrast(u8 contrast)
 //4,偏绿色
 //5,偏蓝色
 //6,复古	    
-void OV2640_Special_Effects(u8 eft)
+void OV2640_Special_Effects(uint8_t eft)
 {
-	u8 reg7d0val=0x00;//默认为普通模式
-	u8 reg7d1val=0x80;
-	u8 reg7d2val=0x80;
+	uint8_t reg7d0val=0x00;//默认为普通模式
+	uint8_t reg7d1val=0x80;
+	uint8_t reg7d2val=0x80;
     
 	switch(eft)
 	{
@@ -268,9 +268,9 @@ void OV2640_Special_Effects(u8 eft)
 //彩条测试
 //sw:0,关闭彩条
 //   1,开启彩条(注意OV2640的彩条是叠加在图像上面的)
-void OV2640_Color_Bar(u8 sw)
+void OV2640_Color_Bar(uint8_t sw)
 {
-	u8 reg;
+	uint8_t reg;
     
     ov2640_wreg(OV2640_RA_DLMT, OV2640_SENSOR);
     ov2640_rreg(0x12, &reg);
@@ -283,11 +283,11 @@ void OV2640_Color_Bar(u8 sw)
 //设置图像输出窗口 
 //sx,sy,起始地址
 //width,height:宽度(对应:horizontal)和高度(对应:vertical)
-void OV2640_Window_Set(u16 sx,u16 sy,u16 width,u16 height)
+void OV2640_Window_Set(uint16_t sx, uint16_t sy, uint16_t width, uint16_t height)
 {
-	u16 ex;
-	u16 ey;
-	u8 temp;
+	uint16_t ex;
+	uint16_t ey;
+	uint8_t  temp;
     
 	ex = sx + width  / 2;	//V*2
  	ey = sy + height / 2;
@@ -313,11 +313,11 @@ void OV2640_Window_Set(u16 sx,u16 sy,u16 width,u16 height)
 //width,height:宽度(对应:horizontal)和高度(对应:vertical),width和height必须是4的倍数
 //返回值:0,设置成功
 //    其他,设置失败
-int OV2640_OutSize_Set(u16 width,u16 height)
+int OV2640_OutSize_Set(uint16_t width, uint16_t height)
 {
-	u16 outh;
-	u16 outw;
-	u8 temp;
+	uint16_t outh;
+	uint16_t outw;
+	uint8_t  temp;
     
 	if (width  % 4)return 1;
 	if (height % 4)return 2;
@@ -344,11 +344,11 @@ int OV2640_OutSize_Set(u16 width,u16 height)
 //width,height:宽度(对应:horizontal)和高度(对应:vertical),width和height必须是4的倍数
 //返回值:0,设置成功
 //    其他,设置失败
-int OV2640_ImageWin_Set(u16 offx,u16 offy,u16 width,u16 height)
+int OV2640_ImageWin_Set(uint16_t offx, uint16_t offy, uint16_t width, uint16_t height)
 {
-	u16 hsize;
-	u16 vsize;
-	u8 temp;
+	uint16_t hsize;
+	uint16_t vsize;
+	uint8_t  temp;
     
 	if (width %  4)return 1;
 	if (height % 4)return 2;
@@ -369,16 +369,16 @@ int OV2640_ImageWin_Set(u16 offx,u16 offy,u16 width,u16 height)
     ov2640_wreg(0xe0, 0x00);
     
 	return 0;
-} 
+}
 
 //该函数设置图像尺寸大小,也就是所选格式的输出分辨率
 //UXGA:1600*1200,SVGA:800*600,CIF:352*288
 //width,height:图像宽度和图像高度
 //返回值:0,设置成功
 //    其他,设置失败
-int OV2640_ImageSize_Set(u16 width,u16 height)
+int OV2640_ImageSize_Set(uint16_t width, uint16_t height)
 {
-	u8 temp;
+	uint8_t temp;
     
     ov2640_wreg(OV2640_RA_DLMT, OV2640_DSP);
     ov2640_wreg(0xe0, 0x04);
@@ -396,7 +396,7 @@ int OV2640_ImageSize_Set(u16 width,u16 height)
 //OV2640初始化
 int ov2640_init(void)
 {
-    u8 i;
+    uint8_t i;
     
     rt_uint8_t ov2640id_h;
     rt_uint8_t ov2640id_l;
@@ -411,7 +411,7 @@ int ov2640_init(void)
         rt_kprintf("OV2640 detection\n");
     else
     {
-        rt_kprintf("wrong camrea PID: 0x%x%x\r\n", 
+        rt_kprintf("unknown camrea : [PID]0x%02x%02x\r\n", 
                             ov2640id_h, ov2640id_l);
         return -RT_ERROR;
     }
@@ -440,7 +440,7 @@ void cmd_ov2640(int argc, char *argv[])
     }
     else if (argc == 3)
     {
-        if (rt_strcmp(argv[1], "expose") == 0)
+        if (rt_strcmp(argv[1], "exposure") == 0)
             OV2640_Auto_Exposure(atoi(argv[2]));
         else if (rt_strcmp(argv[1], "colors") == 0)
             OV2640_Color_Saturation(atoi(argv[2]));
@@ -457,7 +457,7 @@ void cmd_ov2640(int argc, char *argv[])
     {
         rt_kprintf("Usage: ov2640 jpeg\n");
         rt_kprintf("              rgb565\n");
-        rt_kprintf("              expose [level: 0~4]\n");
+        rt_kprintf("              exposure [level: 0~4]\n");
         rt_kprintf("              colors [level: 0~4]\n");
         rt_kprintf("              brightness [level: 0~4]\n");
         rt_kprintf("              contrast [level: 0~4]\n");
