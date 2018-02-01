@@ -11,13 +11,13 @@
 #include "spi_flash_w25qxx.h"
 
 /*
-SPI1_MOSI: PB5
-SPI1_MISO: PB4
-SPI1_SCK : PB3
+SPI3_MOSI: PB5
+SPI3_MISO: PB4
+SPI3_SCK : PB3
 
-CS0: PA15  SPI FLASH
+CS30: PA15 SPI FLASH
 */
-static void rt_hw_spi1_init(void)
+static void rt_hw_spi3_init(void)
 {
     /* register spi bus */
     {
@@ -36,11 +36,11 @@ static void rt_hw_spi1_init(void)
         GPIO_Init(GPIOB, &GPIO_InitStructure);
 
         /* Connect alternate function */
-        GPIO_PinAFConfig(GPIOB, GPIO_PinSource3, GPIO_AF_SPI1);
-        GPIO_PinAFConfig(GPIOB, GPIO_PinSource4, GPIO_AF_SPI1);
-        GPIO_PinAFConfig(GPIOB, GPIO_PinSource5, GPIO_AF_SPI1);
+        GPIO_PinAFConfig(GPIOB, GPIO_PinSource3, GPIO_AF_SPI3);
+        GPIO_PinAFConfig(GPIOB, GPIO_PinSource4, GPIO_AF_SPI3);
+        GPIO_PinAFConfig(GPIOB, GPIO_PinSource5, GPIO_AF_SPI3);
 
-        stm32_spi_register(SPI1, &stm32_spi, "spi1");
+        stm32_spi_register(SPI3, &stm32_spi, "spi3");
     }
 
     /* attach cs */
@@ -55,7 +55,7 @@ static void rt_hw_spi1_init(void)
         GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
         GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 
-        /* spi10: PA15 */
+        /* spi30: PA15 */
         spi_cs.GPIOx = GPIOA;
         spi_cs.GPIO_Pin = GPIO_Pin_15;
         RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
@@ -64,7 +64,7 @@ static void rt_hw_spi1_init(void)
         GPIO_SetBits(spi_cs.GPIOx, spi_cs.GPIO_Pin);
         GPIO_Init(spi_cs.GPIOx, &GPIO_InitStructure);
 
-        rt_spi_bus_attach_device(&spi_device, "spi10", "spi1", (void*)&spi_cs);
+        rt_spi_bus_attach_device(&spi_device, "spi30", "spi3", (void*)&spi_cs);
     }
 }
 #endif
@@ -94,10 +94,10 @@ static void rt_hw_wifi_reset(void)
 void rt_platform_init(void)
 {
 #ifdef RT_USING_SPI
-    rt_hw_spi1_init();
+    rt_hw_spi3_init();
 
 #ifdef RT_USING_DFS
-    w25qxx_init("flash0", "spi10");
+    w25qxx_init("flash0", "spi30");
 #endif /* RT_USING_DFS */
 #endif /* RT_USING_SPI */
 
