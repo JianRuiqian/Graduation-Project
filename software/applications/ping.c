@@ -44,7 +44,7 @@ struct _ip_addr
 };
 
 /** Prepare a echo ICMP request */
-static void ping_prepare_echo( struct icmp_echo_hdr *iecho, u16_t len)
+static void ping_prepare_echo(struct icmp_echo_hdr *iecho, u16_t len)
 {
     size_t i;
     size_t data_len = len - sizeof(struct icmp_echo_hdr);
@@ -56,9 +56,9 @@ static void ping_prepare_echo( struct icmp_echo_hdr *iecho, u16_t len)
     iecho->seqno  = htons(++ping_seq_num);
 
     /* fill the additional data buffer with some data */
-    for(i = 0; i < data_len; i++)
+    for (i = 0; i < data_len; i++)
     {
-        ((char*)iecho)[sizeof(struct icmp_echo_hdr) + i] = (char)i;
+        ((char *)iecho)[sizeof(struct icmp_echo_hdr) + i] = (char)i;
     }
 
     iecho->chksum = inet_chksum(iecho, len);
@@ -85,7 +85,7 @@ static err_t ping_send(int s, struct ip_addr *addr, int size)
     to.sin_family = AF_INET;
     to.sin_addr.s_addr = addr->addr;
 
-    err = lwip_sendto(s, iecho, ping_size, 0, (struct sockaddr*)&to, sizeof(to));
+    err = lwip_sendto(s, iecho, ping_size, 0, (struct sockaddr *)&to, sizeof(to));
     rt_free(iecho);
 
     return (err ? ERR_OK : ERR_VAL);
@@ -100,16 +100,16 @@ static void ping_recv(int s)
     struct icmp_echo_hdr *iecho;
     struct _ip_addr *addr;
 
-    while((len = lwip_recvfrom(s, buf, sizeof(buf), 0, (struct sockaddr*)&from, (socklen_t*)&fromlen)) > 0)
+    while ((len = lwip_recvfrom(s, buf, sizeof(buf), 0, (struct sockaddr *)&from, (socklen_t *)&fromlen)) > 0)
     {
-        if (len >= (sizeof(struct ip_hdr)+sizeof(struct icmp_echo_hdr)))
+        if (len >= (sizeof(struct ip_hdr) + sizeof(struct icmp_echo_hdr)))
         {
-            addr = (struct _ip_addr *)&(from.sin_addr);
-            rt_kprintf("ping: recv %d.%d.%d.%d\n", 
-                        addr->addr0, addr->addr1, addr->addr2, addr->addr3);
+            addr = (struct _ip_addr *) & (from.sin_addr);
+            rt_kprintf("ping: recv %d.%d.%d.%d\n",
+                       addr->addr0, addr->addr1, addr->addr2, addr->addr3);
 
             iphdr = (struct ip_hdr *)buf;
-            iecho = (struct icmp_echo_hdr *)(buf+(IPH_HL(iphdr) * 4));
+            iecho = (struct icmp_echo_hdr *)(buf + (IPH_HL(iphdr) * 4));
             if ((iecho->id == PING_ID) && (iecho->seqno == htons(ping_seq_num)))
             {
                 return;
@@ -127,7 +127,7 @@ static void ping_recv(int s)
     }
 }
 
-rt_err_t ping(char* target, rt_uint32_t time, rt_size_t size)
+rt_err_t ping(char *target, rt_uint32_t time, rt_size_t size)
 {
     struct hostent *host;
     int s;
@@ -149,8 +149,8 @@ rt_err_t ping(char* target, rt_uint32_t time, rt_size_t size)
         return -RT_ERROR;
     }
 
-    ping_target.addr = *((rt_uint32_t*)host->h_addr_list[0]);
-    addr = (struct _ip_addr*)&ping_target;
+    ping_target.addr = *((rt_uint32_t *)host->h_addr_list[0]);
+    addr = (struct _ip_addr *)&ping_target;
 
     if ((s = lwip_socket(AF_INET, SOCK_RAW, IP_PROTO_ICMP)) < 0)
     {
@@ -164,14 +164,14 @@ rt_err_t ping(char* target, rt_uint32_t time, rt_size_t size)
     {
         if (ping_send(s, &ping_target, size) == ERR_OK)
         {
-            rt_kprintf("ping: send %d.%d.%d.%d\n", 
-                        addr->addr0, addr->addr1, addr->addr2, addr->addr3);
+            rt_kprintf("ping: send %d.%d.%d.%d\n",
+                       addr->addr0, addr->addr1, addr->addr2, addr->addr3);
             ping_recv(s);
         }
         else
         {
-            rt_kprintf("ping: send %d.%d.%d.%d - error\n", 
-                        addr->addr0, addr->addr1, addr->addr2, addr->addr3);
+            rt_kprintf("ping: send %d.%d.%d.%d - error\n",
+                       addr->addr0, addr->addr1, addr->addr2, addr->addr3);
         }
 
         send_time ++;
@@ -201,30 +201,33 @@ int cmd_ping(int argc, char **argv)
     {
         switch (argv[i ++][1])
         {
-            case 'l':
+        case 'l':
+        {
+            size = atoi(argv[i]);
+            if (size < 0)
             {
-                size = atoi(argv[i]);
-                if (size < 0)
-                {
-                    rt_kprintf("min ping length: 0\n");
-                    return -RT_ERROR;
-                }
-            }break;
+                rt_kprintf("min ping length: 0\n");
+                return -RT_ERROR;
+            }
+        }
+        break;
 
-            case 'n':
+        case 'n':
+        {
+            time = atoi(argv[i]);
+            if (time < 1)
             {
-                time = atoi(argv[i]);
-                if (time < 1)
-                {
-                    rt_kprintf("min number of packets: 1\n");
-                    return -RT_ERROR;
-                }
-            }break;
+                rt_kprintf("min number of packets: 1\n");
+                return -RT_ERROR;
+            }
+        }
+        break;
 
-            default:
-            {
-                rt_kprintf("not supported, ignoring: %s\n", argv[i - 1]);
-            }break;
+        default:
+        {
+            rt_kprintf("not supported, ignoring: %s\n", argv[i - 1]);
+        }
+        break;
         }
     }
 

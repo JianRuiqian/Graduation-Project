@@ -10,11 +10,11 @@ SDA: I2C1_SDA PE3
 */
 #define GPIO_PORT_I2C_SCL   GPIOE
 #define RCC_I2C_SCL         RCC_AHB1Periph_GPIOE
-#define PIN_I2C_SCL		    GPIO_Pin_2
+#define PIN_I2C_SCL         GPIO_Pin_2
 
 #define GPIO_PORT_I2C_SDA   GPIOE
 #define RCC_I2C_SDA         RCC_AHB1Periph_GPIOE
-#define PIN_I2C_SDA		    GPIO_Pin_3
+#define PIN_I2C_SDA         GPIO_Pin_3
 
 static struct rt_i2c_bus_device i2c_device;
 
@@ -58,7 +58,7 @@ static void gpio_udelay(rt_uint32_t us)
     for (; us > 0; us--)
     {
         i = 50;
-        while(i--);
+        while (i--);
     }
 }
 
@@ -79,13 +79,13 @@ static const struct rt_i2c_bit_ops bit_ops =
 #else
 
 #if 0
-static rt_err_t stm32_i2c_configure(struct rt_i2c_bus_device * device,
-                                    struct rt_i2c_configuration* configuration)
+static rt_err_t stm32_i2c_configure(struct rt_i2c_bus_device *device,
+                                    struct rt_i2c_configuration *configuration)
 {
     return RT_EOK;
 }
 
-static rt_err_t stm32_i2c_start(struct rt_i2c_bus_device * device)
+static rt_err_t stm32_i2c_start(struct rt_i2c_bus_device *device)
 {
 //    /* Send START condition */
 //    I2C_GenerateSTART(I2C1, ENABLE);
@@ -96,7 +96,7 @@ static rt_err_t stm32_i2c_start(struct rt_i2c_bus_device * device)
     return RT_EOK;
 }
 
-static rt_err_t stm32_i2c_stop(struct rt_i2c_bus_device * device)
+static rt_err_t stm32_i2c_stop(struct rt_i2c_bus_device *device)
 {
 //    /* Send STOP Condition */
 //    I2C_GenerateSTOP(I2C1, ENABLE);
@@ -104,9 +104,9 @@ static rt_err_t stm32_i2c_stop(struct rt_i2c_bus_device * device)
     return RT_EOK;
 }
 
-static rt_size_t stm32_i2c_read(struct rt_i2c_bus_device * device,
-                                struct rt_i2c_message * message,
-                                rt_uint8_t * read_buffer,
+static rt_size_t stm32_i2c_read(struct rt_i2c_bus_device *device,
+                                struct rt_i2c_message *message,
+                                rt_uint8_t *read_buffer,
                                 rt_size_t size)
 {
     uint16_t temp;
@@ -115,73 +115,73 @@ static rt_size_t stm32_i2c_read(struct rt_i2c_bus_device * device,
     I2C_GenerateSTART(I2C1, ENABLE);
 
     /* Test on EV5 and clear it */
-    while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
+    while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
 
     /* Send EEPROM address for write */
     I2C_Send7bitAddress(I2C1, message->device_addr, I2C_Direction_Transmitter);
 
     /* Test on EV6 and clear it */
-    while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
+    while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
 
     I2C_SendData(I2C1, *message->device_offset);
 
     /* Test on EV8 and clear it */
-    while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+    while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 
     /* Send STRAT condition a second time */
     I2C_GenerateSTART(I2C1, ENABLE);
 
     /* Test on EV5 and clear it */
-    while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
+    while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
 
     /* Send EEPROM address for read */
     I2C_Send7bitAddress(I2C1, message->device_addr, I2C_Direction_Receiver);
 
     /* Test on EV6 and clear it */
-    while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED));
+    while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED));
 
 
-    while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_RECEIVED));
+    while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_RECEIVED));
 
-    I2C_AcknowledgeConfig(I2C1,DISABLE);
+    I2C_AcknowledgeConfig(I2C1, DISABLE);
 
     *read_buffer++ = I2C_ReceiveData(I2C1);
 
     /* Test on EV7 and clear it */
-    while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_RECEIVED));
+    while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_RECEIVED));
 
     *read_buffer++ |= I2C_ReceiveData(I2C1);
 
     /* Send STOP Condition */
     I2C_GenerateSTOP(I2C1, ENABLE);
 
-    I2C_AcknowledgeConfig(I2C1,ENABLE);
+    I2C_AcknowledgeConfig(I2C1, ENABLE);
 
     return size;
 }
 
-static rt_size_t stm32_i2c_write(struct rt_i2c_bus_device * device,
-                                 struct rt_i2c_message * message,
-                                 const rt_uint8_t * write_buffer,
+static rt_size_t stm32_i2c_write(struct rt_i2c_bus_device *device,
+                                 struct rt_i2c_message *message,
+                                 const rt_uint8_t *write_buffer,
                                  rt_size_t size)
 {
     /* Send START condition */
     I2C_GenerateSTART(I2C1, ENABLE);
 
     /* Test on EV5 and clear it */
-    while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
+    while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
 
     /* Send EEPROM address for write */
     I2C_Send7bitAddress(I2C1, message->device_addr, I2C_Direction_Transmitter);
 
     /* Test on EV6 and clear it */
-    while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
+    while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
 
     /* Send the EEPROM's internal address to write to */
     I2C_SendData(I2C1, *message->device_offset);
 
     /* Test on EV8 and clear it */
-    while(! I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+    while (! I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 
     /* Send the current byte */
     I2C_SendData(I2C1, (uint8_t)*write_buffer++);
@@ -202,14 +202,14 @@ static rt_size_t stm32_i2c_write(struct rt_i2c_bus_device * device,
 }
 #endif
 
-static rt_size_t stm32_i2c_recv_bytes(I2C_TypeDef* I2Cx, struct rt_i2c_msg *msg)
+static rt_size_t stm32_i2c_recv_bytes(I2C_TypeDef *I2Cx, struct rt_i2c_msg *msg)
 {
     rt_size_t bytes = 0;
     rt_size_t len = msg->len;
 
     while (len--)
     {
-        while(!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_RECEIVED));
+        while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_RECEIVED));
 
         msg->buf[bytes++] = (rt_uint8_t)I2Cx->DR;
     }
@@ -218,7 +218,7 @@ static rt_size_t stm32_i2c_recv_bytes(I2C_TypeDef* I2Cx, struct rt_i2c_msg *msg)
 }
 
 
-static rt_size_t stm32_i2c_send_bytes(I2C_TypeDef* I2Cx, struct rt_i2c_msg *msg)
+static rt_size_t stm32_i2c_send_bytes(I2C_TypeDef *I2Cx, struct rt_i2c_msg *msg)
 {
     rt_size_t bytes = 0;
     rt_size_t len = msg->len;
@@ -226,14 +226,14 @@ static rt_size_t stm32_i2c_send_bytes(I2C_TypeDef* I2Cx, struct rt_i2c_msg *msg)
     while (len--)
     {
         I2Cx->DR = msg->buf[bytes++];
-        while(! I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+        while (! I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
     }
 
     return bytes;
 }
 
 
-static void I2C_SendAddress(I2C_TypeDef* I2Cx, struct rt_i2c_msg *msg)
+static void I2C_SendAddress(I2C_TypeDef *I2Cx, struct rt_i2c_msg *msg)
 {
     rt_uint16_t addr;
     rt_uint16_t flags = msg->flags;
@@ -260,7 +260,7 @@ static rt_size_t stm32_i2c_xfer(struct rt_i2c_bus_device *bus,
 
     I2C_GenerateSTART(I2C1, ENABLE);
     /* Test on EV5 and clear it */
-    while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
+    while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
 
     for (i = 0; i < num; i++)
     {
@@ -274,17 +274,17 @@ static rt_size_t stm32_i2c_xfer(struct rt_i2c_bus_device *bus,
             }
             I2C_SendAddress(I2C1, msg);
             if (msg->flags & RT_I2C_RD)
-                while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED));
+                while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED));
             else
-                while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
+                while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
 
         }
         if (msg->flags & RT_I2C_RD)
         {
             if (!(msg->flags & RT_I2C_NO_READ_ACK))
-                I2C_AcknowledgeConfig(I2C1,ENABLE);
+                I2C_AcknowledgeConfig(I2C1, ENABLE);
             else
-                I2C_AcknowledgeConfig(I2C1,DISABLE);
+                I2C_AcknowledgeConfig(I2C1, DISABLE);
             ret = stm32_i2c_recv_bytes(I2C1, msg);
             if (ret >= 1)
                 i2c_dbg("read %d byte%s\n",
@@ -399,7 +399,7 @@ int rt_hw_i2c_init(void)
     /* sEE_I2C configuration */
     I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
     I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
-//	I2C_InitStructure.I2C_OwnAddress1 = SLA_ADDRESS;
+//  I2C_InitStructure.I2C_OwnAddress1 = SLA_ADDRESS;
     I2C_InitStructure.I2C_OwnAddress1 = 0x18;
     I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
     I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;

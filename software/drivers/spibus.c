@@ -16,8 +16,8 @@
 #include "spibus.h"
 
 /* private rt-thread spi ops function */
-static rt_err_t configure(struct rt_spi_device* device, struct rt_spi_configuration* configuration);
-static rt_uint32_t xfer(struct rt_spi_device* device, struct rt_spi_message* message);
+static rt_err_t configure(struct rt_spi_device *device, struct rt_spi_configuration *configuration);
+static rt_uint32_t xfer(struct rt_spi_device *device, struct rt_spi_message *message);
 
 static struct rt_spi_ops stm32_spi_ops =
 {
@@ -27,9 +27,9 @@ static struct rt_spi_ops stm32_spi_ops =
 
 #ifdef SPI_USE_DMA
 static uint8_t dummy = 0xFF;
-static void DMA_RxConfiguration(struct stm32_spi_bus * stm32_spi_bus,
-                                const void * send_addr,
-                                void * recv_addr,
+static void DMA_RxConfiguration(struct stm32_spi_bus *stm32_spi_bus,
+                                const void *send_addr,
+                                void *recv_addr,
                                 rt_size_t size)
 {
     DMA_InitTypeDef DMA_InitStructure;
@@ -65,14 +65,14 @@ static void DMA_RxConfiguration(struct stm32_spi_bus * stm32_spi_bus,
     DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
     DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
 
-    if(recv_addr != RT_NULL)
+    if (recv_addr != RT_NULL)
     {
         DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t) recv_addr;
         DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
     }
     else
     {
-        DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t) (&dummy);
+        DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)(&dummy);
         DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Disable;
     }
 
@@ -97,7 +97,7 @@ static void DMA_RxConfiguration(struct stm32_spi_bus * stm32_spi_bus,
     DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
     DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
 
-    if(send_addr != RT_NULL)
+    if (send_addr != RT_NULL)
     {
         DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)send_addr;
         DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
@@ -115,20 +115,20 @@ static void DMA_RxConfiguration(struct stm32_spi_bus * stm32_spi_bus,
 }
 #endif
 
-static rt_err_t configure(struct rt_spi_device* device,
-                          struct rt_spi_configuration* configuration)
+static rt_err_t configure(struct rt_spi_device *device,
+                          struct rt_spi_configuration *configuration)
 {
-    struct stm32_spi_bus * stm32_spi_bus = (struct stm32_spi_bus *)device->bus;
+    struct stm32_spi_bus *stm32_spi_bus = (struct stm32_spi_bus *)device->bus;
     SPI_InitTypeDef SPI_InitStructure;
 
     SPI_StructInit(&SPI_InitStructure);
 
     /* data_width */
-    if(configuration->data_width <= 8)
+    if (configuration->data_width <= 8)
     {
         SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
     }
-    else if(configuration->data_width <= 16)
+    else if (configuration->data_width <= 16)
     {
         SPI_InitStructure.SPI_DataSize = SPI_DataSize_16b;
     }
@@ -151,7 +151,7 @@ static rt_err_t configure(struct rt_spi_device* device,
         stm32_spi_max_clock = 30000000;
 #endif
 
-        if(max_hz > stm32_spi_max_clock)
+        if (max_hz > stm32_spi_max_clock)
         {
             max_hz = stm32_spi_max_clock;
         }
@@ -160,31 +160,31 @@ static rt_err_t configure(struct rt_spi_device* device,
 
         /* STM32F2xx SPI MAX 30Mhz */
         /* STM32F4xx SPI MAX 37.5Mhz */
-        if(max_hz >= SPI_APB_CLOCK/2 && SPI_APB_CLOCK/2 <= 30000000)
+        if (max_hz >= SPI_APB_CLOCK / 2 && SPI_APB_CLOCK / 2 <= 30000000)
         {
             SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2;
         }
-        else if(max_hz >= SPI_APB_CLOCK/4)
+        else if (max_hz >= SPI_APB_CLOCK / 4)
         {
             SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4;
         }
-        else if(max_hz >= SPI_APB_CLOCK/8)
+        else if (max_hz >= SPI_APB_CLOCK / 8)
         {
             SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8;
         }
-        else if(max_hz >= SPI_APB_CLOCK/16)
+        else if (max_hz >= SPI_APB_CLOCK / 16)
         {
             SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16;
         }
-        else if(max_hz >= SPI_APB_CLOCK/32)
+        else if (max_hz >= SPI_APB_CLOCK / 32)
         {
             SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_32;
         }
-        else if(max_hz >= SPI_APB_CLOCK/64)
+        else if (max_hz >= SPI_APB_CLOCK / 64)
         {
             SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_64;
         }
-        else if(max_hz >= SPI_APB_CLOCK/128)
+        else if (max_hz >= SPI_APB_CLOCK / 128)
         {
             SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_128;
         }
@@ -196,7 +196,7 @@ static rt_err_t configure(struct rt_spi_device* device,
     } /* baudrate */
 
     /* CPOL */
-    if(configuration->mode & RT_SPI_CPOL)
+    if (configuration->mode & RT_SPI_CPOL)
     {
         SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;
     }
@@ -205,7 +205,7 @@ static rt_err_t configure(struct rt_spi_device* device,
         SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
     }
     /* CPHA */
-    if(configuration->mode & RT_SPI_CPHA)
+    if (configuration->mode & RT_SPI_CPHA)
     {
         SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;
     }
@@ -214,7 +214,7 @@ static rt_err_t configure(struct rt_spi_device* device,
         SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;
     }
     /* MSB or LSB */
-    if(configuration->mode & RT_SPI_MSB)
+    if (configuration->mode & RT_SPI_MSB)
     {
         SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
     }
@@ -236,24 +236,24 @@ static rt_err_t configure(struct rt_spi_device* device,
     return RT_EOK;
 };
 
-static rt_uint32_t xfer(struct rt_spi_device* device, struct rt_spi_message* message)
+static rt_uint32_t xfer(struct rt_spi_device *device, struct rt_spi_message *message)
 {
-    struct stm32_spi_bus * stm32_spi_bus = (struct stm32_spi_bus *)device->bus;
-    struct rt_spi_configuration * config = &device->config;
-    SPI_TypeDef * SPI = stm32_spi_bus->SPI;
-    struct stm32_spi_cs * stm32_spi_cs = device->parent.user_data;
+    struct stm32_spi_bus *stm32_spi_bus = (struct stm32_spi_bus *)device->bus;
+    struct rt_spi_configuration *config = &device->config;
+    SPI_TypeDef *SPI = stm32_spi_bus->SPI;
+    struct stm32_spi_cs *stm32_spi_cs = device->parent.user_data;
     rt_uint32_t size = message->length;
 
     /* take CS */
-    if(message->cs_take)
+    if (message->cs_take)
     {
         GPIO_ResetBits(stm32_spi_cs->GPIOx, stm32_spi_cs->GPIO_Pin);
     }
 
 #ifdef SPI_USE_DMA
-    if(message->length > 32)
+    if (message->length > 32)
     {
-        if(config->data_width <= 8)
+        if (config->data_width <= 8)
         {
             DMA_RxConfiguration(stm32_spi_bus, message->send_buf, message->recv_buf, message->length);
 //            SPI_I2S_ClearFlag(SPI, SPI_I2S_FLAG_RXNE);
@@ -266,16 +266,16 @@ static rt_uint32_t xfer(struct rt_spi_device* device, struct rt_spi_message* mes
     else
 #endif
     {
-        if(config->data_width <= 8)
+        if (config->data_width <= 8)
         {
-            const rt_uint8_t * send_ptr = message->send_buf;
-            rt_uint8_t * recv_ptr = message->recv_buf;
+            const rt_uint8_t *send_ptr = message->send_buf;
+            rt_uint8_t *recv_ptr = message->recv_buf;
 
-            while(size--)
+            while (size--)
             {
                 rt_uint8_t data = 0xFF;
 
-                if(send_ptr != RT_NULL)
+                if (send_ptr != RT_NULL)
                 {
                     data = *send_ptr++;
                 }
@@ -290,22 +290,22 @@ static rt_uint32_t xfer(struct rt_spi_device* device, struct rt_spi_message* mes
                 // Get the received data
                 data = SPI_I2S_ReceiveData(SPI);
 
-                if(recv_ptr != RT_NULL)
+                if (recv_ptr != RT_NULL)
                 {
                     *recv_ptr++ = data;
                 }
             }
         }
-        else if(config->data_width <= 16)
+        else if (config->data_width <= 16)
         {
-            const rt_uint16_t * send_ptr = message->send_buf;
-            rt_uint16_t * recv_ptr = message->recv_buf;
+            const rt_uint16_t *send_ptr = message->send_buf;
+            rt_uint16_t *recv_ptr = message->recv_buf;
 
-            while(size--)
+            while (size--)
             {
                 rt_uint16_t data = 0xFF;
 
-                if(send_ptr != RT_NULL)
+                if (send_ptr != RT_NULL)
                 {
                     data = *send_ptr++;
                 }
@@ -320,7 +320,7 @@ static rt_uint32_t xfer(struct rt_spi_device* device, struct rt_spi_message* mes
                 // Get the received data
                 data = SPI_I2S_ReceiveData(SPI);
 
-                if(recv_ptr != RT_NULL)
+                if (recv_ptr != RT_NULL)
                 {
                     *recv_ptr++ = data;
                 }
@@ -329,7 +329,7 @@ static rt_uint32_t xfer(struct rt_spi_device* device, struct rt_spi_message* mes
     }
 
     /* release CS */
-    if(message->cs_release)
+    if (message->cs_release)
     {
         GPIO_SetBits(stm32_spi_cs->GPIOx, stm32_spi_cs->GPIO_Pin);
     }
@@ -345,13 +345,13 @@ static rt_uint32_t xfer(struct rt_spi_device* device, struct rt_spi_message* mes
  * \return
  *
  */
-rt_err_t stm32_spi_register(SPI_TypeDef * SPI,
-                            struct stm32_spi_bus * stm32_spi,
-                            const char * spi_bus_name)
+rt_err_t stm32_spi_register(SPI_TypeDef *SPI,
+                            struct stm32_spi_bus *stm32_spi,
+                            const char *spi_bus_name)
 {
-    if(SPI == SPI1)
+    if (SPI == SPI1)
     {
-    	stm32_spi->SPI = SPI1;
+        stm32_spi->SPI = SPI1;
 #ifdef SPI_USE_DMA
         RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
         /* DMA2_Stream0 DMA_Channel_3 : SPI1_RX */
@@ -367,7 +367,7 @@ rt_err_t stm32_spi_register(SPI_TypeDef * SPI,
 #endif
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
     }
-    else if(SPI == SPI2)
+    else if (SPI == SPI2)
     {
         stm32_spi->SPI = SPI2;
 #ifdef SPI_USE_DMA
@@ -383,9 +383,9 @@ rt_err_t stm32_spi_register(SPI_TypeDef * SPI,
 #endif
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
     }
-    else if(SPI == SPI3)
+    else if (SPI == SPI3)
     {
-    	stm32_spi->SPI = SPI3;
+        stm32_spi->SPI = SPI3;
 #ifdef SPI_USE_DMA
         RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
         /* DMA1_Stream2 DMA_Channel_0 : SPI3_RX */

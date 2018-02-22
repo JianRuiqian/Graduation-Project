@@ -21,7 +21,7 @@ struct rt_dc_motor_device
     const struct dc_motor_ops  *ops;
     struct dc_motor_configure   config;
 };
-typedef struct rt_dc_motor_device* rt_dc_motor_t;
+typedef struct rt_dc_motor_device *rt_dc_motor_t;
 
 struct dc_motor_ops
 {

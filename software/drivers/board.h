@@ -20,18 +20,18 @@
 
 /* board configuration */
 // <o> SDCard Driver <1=>SDIO sdcard <0=>SPI MMC card
-// 	<i>Default: 1
-#define STM32_USE_SDIO			1
+//  <i>Default: 1
+#define STM32_USE_SDIO          1
 
 /* whether use board external SRAM memory */
 // <e>Use external SRAM memory on the board
-// 	<i>Enable External SRAM memory
+//  <i>Enable External SRAM memory
 #define STM32_EXT_SRAM          0
-//	<o>Begin Address of External SRAM
-//		<i>Default: 0x68000000
+//  <o>Begin Address of External SRAM
+//      <i>Default: 0x68000000
 #define STM32_EXT_SRAM_BEGIN    0x68000000 /* the begining address of external SRAM */
-//	<o>End Address of External SRAM
-//		<i>Default: 0x68080000
+//  <o>End Address of External SRAM
+//      <i>Default: 0x68080000
 #define STM32_EXT_SRAM_END      0x68080000 /* the end address of external SRAM */
 // </e>
 
@@ -47,7 +47,7 @@ extern int __bss_end;
 #endif
 
 // <o> Internal SRAM memory size[Kbytes] <8-64>
-//	<i>Default: 64
+//  <i>Default: 64
 #ifdef __ICCARM__
 // Use *.icf ram symbal, to avoid hardcode.
 extern char __ICFEDIT_region_RAM_end__;
@@ -58,8 +58,8 @@ extern char __ICFEDIT_region_RAM_end__;
 #endif
 
 // <o> Console on USART: <0=> no console <1=>USART 1 <2=>USART 2 <3=> USART 3
-// 	<i>Default: 1
-#define STM32_CONSOLE_USART		1
+//  <i>Default: 1
+#define STM32_CONSOLE_USART     1
 
 void rt_hw_us_delay(int us);
 void rt_hw_board_init(void);

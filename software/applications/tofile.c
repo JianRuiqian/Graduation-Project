@@ -14,11 +14,11 @@ struct custom_ctx
 };
 
 static enum rym_code _rym_bg(
-        struct rym_ctx *ctx,
-        rt_uint8_t *buf,
-        rt_size_t len)
+    struct rym_ctx *ctx,
+    rt_uint8_t *buf,
+    rt_size_t len)
 {
-    struct custom_ctx *cctx = (struct custom_ctx*)ctx;
+    struct custom_ctx *cctx = (struct custom_ctx *)ctx;
     cctx->fpath[0] = '\0';
 
     /* use current working directory */
@@ -34,18 +34,18 @@ static enum rym_code _rym_bg(
         return RYM_CODE_CAN;
     }
 
-    cctx->flen = atoi((const char*)buf+strlen((const char*)buf)+1);
+    cctx->flen = atoi((const char *)buf + strlen((const char *)buf) + 1);
     if (cctx->flen == 0)
         cctx->flen = -1;
     return RYM_CODE_ACK;
 }
 
 static enum rym_code _rym_tof(
-        struct rym_ctx *ctx,
-        rt_uint8_t *buf,
-        rt_size_t len)
+    struct rym_ctx *ctx,
+    rt_uint8_t *buf,
+    rt_size_t len)
 {
-    struct custom_ctx *cctx = (struct custom_ctx*)ctx;
+    struct custom_ctx *cctx = (struct custom_ctx *)ctx;
     RT_ASSERT(cctx->fd >= 0);
     if (cctx->flen == -1)
     {
@@ -61,11 +61,11 @@ static enum rym_code _rym_tof(
 }
 
 static enum rym_code _rym_end(
-        struct rym_ctx *ctx,
-        rt_uint8_t *buf,
-        rt_size_t len)
+    struct rym_ctx *ctx,
+    rt_uint8_t *buf,
+    rt_size_t len)
 {
-    struct custom_ctx *cctx = (struct custom_ctx*)ctx;
+    struct custom_ctx *cctx = (struct custom_ctx *)ctx;
 
     RT_ASSERT(cctx->fd >= 0);
     close(cctx->fd);
@@ -116,9 +116,9 @@ rt_err_t ry(char *dname)
 int cmd_ry(int argc, char **argv)
 {
     rt_device_t dev;
-    
+
     dev = rt_console_get_device();
-    
+
     return ry(dev->parent.name);
 }
 MSH_CMD_EXPORT_ALIAS(cmd_ry, ry, receive files by ymodem protocol);

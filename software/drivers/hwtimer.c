@@ -54,7 +54,7 @@ static rt_err_t timer_start(rt_hwtimer_t *timer, rt_uint32_t t, rt_hwtimer_mode_
 
     tim = (TIM_TypeDef *)timer->parent.user_data;
     TIM_SetAutoreload(tim, t);
-    m = (opmode == HWTIMER_MODE_ONESHOT)? TIM_OPMode_Single : TIM_OPMode_Repetitive;
+    m = (opmode == HWTIMER_MODE_ONESHOT) ? TIM_OPMode_Single : TIM_OPMode_Repetitive;
     TIM_SelectOnePulseMode(tim, m);
     TIM_Cmd(tim, ENABLE);
 
@@ -86,9 +86,9 @@ static rt_err_t timer_ctrl(rt_hwtimer_t *timer, rt_uint32_t cmd, void *arg)
 
         RCC_GetClocksFreq(&clk);
 
-        freq = *((rt_uint32_t*)arg);
+        freq = *((rt_uint32_t *)arg);
         clk.PCLK1_Frequency *= 2;
-        val = clk.PCLK1_Frequency/freq;
+        val = clk.PCLK1_Frequency / freq;
 
         TIM_ITConfig(tim, TIM_IT_Update, DISABLE);
         TIM_PrescalerConfig(tim, val - 1, TIM_PSCReloadMode_Immediate);

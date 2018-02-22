@@ -82,7 +82,8 @@ struct stm32_uart
 {
     USART_TypeDef *uart_device;
     IRQn_Type irq;
-    struct stm32_uart_dma {
+    struct stm32_uart_dma
+    {
         /* dma stream */
         DMA_Stream_TypeDef *rx_stream;
         /* dma channel */
@@ -102,7 +103,7 @@ static void DMA_Configuration(struct rt_serial_device *serial);
 
 static rt_err_t stm32_configure(struct rt_serial_device *serial, struct serial_configure *cfg)
 {
-    struct stm32_uart* uart;
+    struct stm32_uart *uart;
     USART_InitTypeDef USART_InitStructure;
 
     RT_ASSERT(serial != RT_NULL);
@@ -112,23 +113,34 @@ static rt_err_t stm32_configure(struct rt_serial_device *serial, struct serial_c
 
     USART_InitStructure.USART_BaudRate = cfg->baud_rate;
 
-    if (cfg->data_bits == DATA_BITS_8){
+    if (cfg->data_bits == DATA_BITS_8)
+    {
         USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-    } else if (cfg->data_bits == DATA_BITS_9) {
+    }
+    else if (cfg->data_bits == DATA_BITS_9)
+    {
         USART_InitStructure.USART_WordLength = USART_WordLength_9b;
     }
 
-    if (cfg->stop_bits == STOP_BITS_1){
+    if (cfg->stop_bits == STOP_BITS_1)
+    {
         USART_InitStructure.USART_StopBits = USART_StopBits_1;
-    } else if (cfg->stop_bits == STOP_BITS_2){
+    }
+    else if (cfg->stop_bits == STOP_BITS_2)
+    {
         USART_InitStructure.USART_StopBits = USART_StopBits_2;
     }
 
-    if (cfg->parity == PARITY_NONE){
+    if (cfg->parity == PARITY_NONE)
+    {
         USART_InitStructure.USART_Parity = USART_Parity_No;
-    } else if (cfg->parity == PARITY_ODD) {
+    }
+    else if (cfg->parity == PARITY_ODD)
+    {
         USART_InitStructure.USART_Parity = USART_Parity_Odd;
-    } else if (cfg->parity == PARITY_EVEN) {
+    }
+    else if (cfg->parity == PARITY_EVEN)
+    {
         USART_InitStructure.USART_Parity = USART_Parity_Even;
     }
 
@@ -144,7 +156,7 @@ static rt_err_t stm32_configure(struct rt_serial_device *serial, struct serial_c
 
 static rt_err_t stm32_control(struct rt_serial_device *serial, int cmd, void *arg)
 {
-    struct stm32_uart* uart;
+    struct stm32_uart *uart;
     rt_uint32_t ctrl_arg = (rt_uint32_t)(arg);
 
     RT_ASSERT(serial != RT_NULL);
@@ -164,9 +176,10 @@ static rt_err_t stm32_control(struct rt_serial_device *serial, int cmd, void *ar
         /* enable interrupt */
         USART_ITConfig(uart->uart_device, USART_IT_RXNE, ENABLE);
         break;
-        /* USART config */
+    /* USART config */
     case RT_DEVICE_CTRL_CONFIG :
-        if (ctrl_arg == RT_DEVICE_FLAG_DMA_RX) {
+        if (ctrl_arg == RT_DEVICE_FLAG_DMA_RX)
+        {
             DMA_Configuration(serial);
         }
     }
@@ -212,7 +225,8 @@ static int stm32_getc(struct rt_serial_device *serial)
  * @param mem_base_addr memory 0 base address for DMA stream
  */
 static void dma_uart_config(struct rt_serial_device *serial, uint32_t setting_recv_len,
-        void *mem_base_addr) {
+                            void *mem_base_addr)
+{
     struct stm32_uart *uart = (struct stm32_uart *) serial->parent.user_data;
     DMA_InitTypeDef DMA_InitStructure;
 
@@ -221,7 +235,7 @@ static void dma_uart_config(struct rt_serial_device *serial, uint32_t setting_re
     DMA_DeInit(uart->dma.rx_stream);
     while (DMA_GetCmdStatus(uart->dma.rx_stream) != DISABLE);
     DMA_InitStructure.DMA_Channel = uart->dma.rx_ch;
-    DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t) &(uart->uart_device->DR);
+    DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t) & (uart->uart_device->DR);
     DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)mem_base_addr;
     DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
     DMA_InitStructure.DMA_BufferSize = uart->dma.setting_recv_len;
@@ -243,14 +257,18 @@ static void dma_uart_config(struct rt_serial_device *serial, uint32_t setting_re
  *
  * @param serial serial device
  */
-static void dma_uart_rx_idle_isr(struct rt_serial_device *serial) {
+static void dma_uart_rx_idle_isr(struct rt_serial_device *serial)
+{
     struct stm32_uart *uart = (struct stm32_uart *) serial->parent.user_data;
     rt_size_t recv_total_index, recv_len;
 
     recv_total_index = uart->dma.setting_recv_len - DMA_GetCurrDataCounter(uart->dma.rx_stream);
-    if (recv_total_index >= uart->dma.last_recv_index) {
+    if (recv_total_index >= uart->dma.last_recv_index)
+    {
         recv_len = recv_total_index - uart->dma.last_recv_index;
-    } else {
+    }
+    else
+    {
         recv_len = uart->dma.setting_recv_len - uart->dma.last_recv_index + recv_total_index;
     }
     uart->dma.last_recv_index = recv_total_index;
@@ -266,18 +284,23 @@ static void dma_uart_rx_idle_isr(struct rt_serial_device *serial) {
  *
  * @param serial serial device
  */
-static void dma_rx_done_isr(struct rt_serial_device *serial) {
+static void dma_rx_done_isr(struct rt_serial_device *serial)
+{
     struct stm32_uart *uart = (struct stm32_uart *) serial->parent.user_data;
     rt_size_t recv_total_index, recv_len;
 
-    if (DMA_GetFlagStatus(uart->dma.rx_stream, uart->dma.rx_flag) != RESET) {
+    if (DMA_GetFlagStatus(uart->dma.rx_stream, uart->dma.rx_flag) != RESET)
+    {
         /* disable dma, stop receive data */
         DMA_Cmd(uart->dma.rx_stream, DISABLE);
 
         recv_total_index = uart->dma.setting_recv_len - DMA_GetCurrDataCounter(uart->dma.rx_stream);
-        if (recv_total_index >= uart->dma.last_recv_index) {
+        if (recv_total_index >= uart->dma.last_recv_index)
+        {
             recv_len = recv_total_index - uart->dma.last_recv_index;
-        } else {
+        }
+        else
+        {
             recv_len = uart->dma.setting_recv_len - uart->dma.last_recv_index + recv_total_index;
             uart->dma.last_recv_index = recv_total_index;
         }
@@ -296,18 +319,19 @@ static void dma_rx_done_isr(struct rt_serial_device *serial) {
  *
  * @param serial serial device
  */
-static void uart_isr(struct rt_serial_device *serial) {
+static void uart_isr(struct rt_serial_device *serial)
+{
     struct stm32_uart *uart = (struct stm32_uart *) serial->parent.user_data;
 
     RT_ASSERT(uart != RT_NULL);
 
-    if(USART_GetITStatus(uart->uart_device, USART_IT_RXNE) != RESET)
+    if (USART_GetITStatus(uart->uart_device, USART_IT_RXNE) != RESET)
     {
         rt_hw_serial_isr(serial, RT_SERIAL_EVENT_RX_IND);
         /* clear interrupt */
         USART_ClearITPendingBit(uart->uart_device, USART_IT_RXNE);
     }
-    if(USART_GetITStatus(uart->uart_device, USART_IT_IDLE) != RESET)
+    if (USART_GetITStatus(uart->uart_device, USART_IT_IDLE) != RESET)
     {
         dma_uart_rx_idle_isr(serial);
     }
@@ -358,7 +382,8 @@ void USART1_IRQHandler(void)
     rt_interrupt_leave();
 }
 
-void DMA2_Stream5_IRQHandler(void) {
+void DMA2_Stream5_IRQHandler(void)
+{
     /* enter interrupt */
     rt_interrupt_enter();
 
@@ -397,7 +422,8 @@ void USART2_IRQHandler(void)
     rt_interrupt_leave();
 }
 
-void DMA1_Stream5_IRQHandler(void) {
+void DMA1_Stream5_IRQHandler(void)
+{
     /* enter interrupt */
     rt_interrupt_enter();
 
@@ -436,7 +462,8 @@ void USART3_IRQHandler(void)
     rt_interrupt_leave();
 }
 
-void DMA1_Stream1_IRQHandler(void) {
+void DMA1_Stream1_IRQHandler(void)
+{
     /* enter interrupt */
     rt_interrupt_enter();
 
@@ -475,7 +502,8 @@ void UART4_IRQHandler(void)
     rt_interrupt_leave();
 }
 
-void DMA1_Stream2_IRQHandler(void) {
+void DMA1_Stream2_IRQHandler(void)
+{
     /* enter interrupt */
     rt_interrupt_enter();
 
@@ -514,7 +542,8 @@ void UART5_IRQHandler(void)
     rt_interrupt_leave();
 }
 
-void DMA1_Stream0_IRQHandler(void) {
+void DMA1_Stream0_IRQHandler(void)
+{
     /* enter interrupt */
     rt_interrupt_enter();
 
@@ -637,14 +666,14 @@ static void NVIC_Configuration(struct stm32_uart *uart)
     NVIC_Init(&NVIC_InitStructure);
 }
 
-static void DMA_Configuration(struct rt_serial_device *serial) 
+static void DMA_Configuration(struct rt_serial_device *serial)
 {
     struct stm32_uart *uart = (struct stm32_uart *) serial->parent.user_data;
     struct rt_serial_rx_fifo *rx_fifo = (struct rt_serial_rx_fifo *)serial->serial_rx;
     NVIC_InitTypeDef NVIC_InitStructure;
 
     /* enable transmit idle interrupt */
-    USART_ITConfig(uart->uart_device, USART_IT_IDLE , ENABLE);
+    USART_ITConfig(uart->uart_device, USART_IT_IDLE, ENABLE);
 
     /* DMA clock enable */
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);

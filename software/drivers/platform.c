@@ -64,7 +64,7 @@ static void rt_hw_spi3_init(void)
         GPIO_SetBits(spi_cs.GPIOx, spi_cs.GPIO_Pin);
         GPIO_Init(spi_cs.GPIOx, &GPIO_InitStructure);
 
-        rt_spi_bus_attach_device(&spi_device, "spi30", "spi3", (void*)&spi_cs);
+        rt_spi_bus_attach_device(&spi_device, "spi30", "spi3", (void *)&spi_cs);
     }
 }
 #endif
@@ -78,12 +78,12 @@ static void rt_hw_wifi_reset(void)
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-    
+
     /* PWDN: PD3 */
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
     GPIO_Init(GPIOD, &GPIO_InitStructure);
-    
+
     /* hardware reset wifi card */
     GPIO_ResetBits(GPIOD, GPIO_Pin_3);
     rt_hw_us_delay(1000);

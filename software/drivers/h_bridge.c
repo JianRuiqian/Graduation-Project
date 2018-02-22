@@ -38,11 +38,11 @@
 #define CH2_PWM_CLOCK               21000
 
 struct pwm_channel
-{    
-    GPIO_TypeDef* gpio_in1;
+{
+    GPIO_TypeDef *gpio_in1;
     uint16_t pin_in1;
-    
-    GPIO_TypeDef* gpio_in2;
+
+    GPIO_TypeDef *gpio_in2;
     uint16_t pin_in2;
 
     TIM_TypeDef *timer;
@@ -56,11 +56,11 @@ struct pwm_channel
 static void _set_direction(struct rt_dc_motor_device *motor, int direction)
 {
     struct pwm_channel *channel;
-    
+
     RT_ASSERT(motor != RT_NULL);
-    
+
     channel = (struct pwm_channel *)motor->parent.user_data;
-    
+
     if (direction == DC_MOTOR_DIR_FORWARD)
     {
         GPIO_WriteBit(channel->gpio_in1, channel->pin_in1, Bit_SET);
@@ -81,9 +81,9 @@ static void _set_direction(struct rt_dc_motor_device *motor, int direction)
 static void _set_ratio(struct rt_dc_motor_device *motor, rt_size_t ratio)
 {
     struct pwm_channel *channel;
-    
+
     RT_ASSERT(motor != RT_NULL);
-    
+
     channel = (struct pwm_channel *)motor->parent.user_data;
     ratio *= 0.01f * channel->period;
     channel->channel_set_compare(channel->timer, ratio);
@@ -94,37 +94,37 @@ static rt_err_t _configure(struct rt_dc_motor_device *motor, struct dc_motor_con
     struct pwm_channel *channel;
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
     TIM_OCInitTypeDef       TIM_OCInitStructure;
-    
+
     RT_ASSERT(motor != RT_NULL);
 
     channel = (struct pwm_channel *)motor->parent.user_data;
-    channel->prescaler = ((SystemCoreClock/2) / (cfg->pwm_clock*channel->period));
-    
+    channel->prescaler = ((SystemCoreClock / 2) / (cfg->pwm_clock * channel->period));
+
     /* Time base configuration */
     TIM_TimeBaseStructure.TIM_Period = channel->period - 1;
     TIM_TimeBaseStructure.TIM_Prescaler = channel->prescaler - 1;
     TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
     TIM_TimeBaseInit(channel->timer, &TIM_TimeBaseStructure);
-    
+
     /* PWM1 Mode configuration */
     TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
     TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
     TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
     TIM_OCInitStructure.TIM_Pulse = 0;
-    
+
     channel->channel_init(channel->timer, &TIM_OCInitStructure);
     channel->channel_preload_cfg(channel->timer, TIM_OCPreload_Enable);
-    
+
     TIM_ARRPreloadConfig(channel->timer, ENABLE);
-    
+
     /* TIMx enable counter */
     TIM_Cmd(channel->timer, ENABLE);
-    
+
     return RT_EOK;
 }
 
-struct dc_motor_ops h_bridge_ops = 
+struct dc_motor_ops h_bridge_ops =
 {
     _set_direction,
     _set_ratio,
@@ -132,7 +132,7 @@ struct dc_motor_ops h_bridge_ops =
 };
 
 #ifdef DC_MOTOR_USING_MOTOR1
-static struct pwm_channel channel1 = 
+static struct pwm_channel channel1 =
 {
     H_BRIDGE_CH1_IN1_GPIO,
     H_BRIDGE_CH1_IN1_GPIO_PIN,
@@ -150,7 +150,7 @@ static struct rt_dc_motor_device dc_motor1;
 #endif  /* DC_MOTOR_USING_MOTOR1 */
 
 #ifdef DC_MOTOR_USING_MOTOR2
-static struct pwm_channel channel2 = 
+static struct pwm_channel channel2 =
 {
     H_BRIDGE_CH2_IN1_GPIO,
     H_BRIDGE_CH2_IN1_GPIO_PIN,
@@ -191,7 +191,7 @@ static void RCC_Configuration(void)
 static void GPIO_Configuration(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
-    
+
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
@@ -203,7 +203,7 @@ static void GPIO_Configuration(void)
     GPIO_Init(H_BRIDGE_CH1_IN1_GPIO, &GPIO_InitStructure);
     GPIO_InitStructure.GPIO_Pin = H_BRIDGE_CH1_IN2_GPIO_PIN;
     GPIO_Init(H_BRIDGE_CH1_IN2_GPIO, &GPIO_InitStructure);
-    
+
     /* Configure H bridge channel1 pwm pin */
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
     GPIO_InitStructure.GPIO_Pin = H_BRIDGE_CH1_PWM_GPIO_PIN;
@@ -212,7 +212,7 @@ static void GPIO_Configuration(void)
     /* Connect alternate function */
     GPIO_PinAFConfig(H_BRIDGE_CH1_PWM_GPIO, H_BRIDGE_CH1_PWM_PIN_SOURCE, CH1_PWM_GPIO_AF_TIM);
 #endif /* DC_MOTOR_USING_MOTOR1 */
-    
+
 #ifdef DC_MOTOR_USING_MOTOR2
     /* Configure H bridge channel2 inx pins */
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
@@ -220,7 +220,7 @@ static void GPIO_Configuration(void)
     GPIO_Init(H_BRIDGE_CH2_IN1_GPIO, &GPIO_InitStructure);
     GPIO_InitStructure.GPIO_Pin = H_BRIDGE_CH2_IN2_GPIO_PIN;
     GPIO_Init(H_BRIDGE_CH2_IN2_GPIO, &GPIO_InitStructure);
-    
+
     /* Configure H bridge channel2 pwm pin */
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
     GPIO_InitStructure.GPIO_Pin = H_BRIDGE_CH2_PWM_GPIO_PIN;
@@ -235,36 +235,36 @@ int rt_hw_h_bridge_init(void)
 {
     struct pwm_channel *channel;
     struct dc_motor_configure config;
-    
+
     RCC_Configuration();
     GPIO_Configuration();
-    
+
 #ifdef DC_MOTOR_USING_MOTOR1
     channel = &channel1;
-    
+
     config.pwm_clock = CH1_PWM_CLOCK;
     dc_motor1.config = config;
     dc_motor1.ops = &h_bridge_ops;
-    
+
     /* register dc motor1 device */
     rt_dc_motor_register(&dc_motor1,
-                          "motor1",
-                          RT_DEVICE_FLAG_RDWR,
-                          channel);
+                         "motor1",
+                         RT_DEVICE_FLAG_RDWR,
+                         channel);
 #endif  /* DC_MOTOR_USING_MOTOR1 */
 
 #ifdef DC_MOTOR_USING_MOTOR2
     channel = &channel2;
-    
+
     config.pwm_clock = CH2_PWM_CLOCK;
     dc_motor2.config = config;
     dc_motor2.ops = &h_bridge_ops;
-    
+
     /* register dc motor2 device */
     rt_dc_motor_register(&dc_motor2,
-                          "motor2",
-                          RT_DEVICE_FLAG_RDWR,
-                          channel);
+                         "motor2",
+                         RT_DEVICE_FLAG_RDWR,
+                         channel);
 #endif  /* DC_MOTOR_USING_MOTOR2 */
     return 0;
 }

@@ -19,14 +19,14 @@ static rt_err_t rt_dc_motor_init(struct rt_device *dev)
 static rt_err_t rt_dc_motor_open(struct rt_device *dev, rt_uint16_t oflag)
 {
     RT_ASSERT(dev != RT_NULL);
-    
+
     return RT_EOK;
 }
 
 static rt_err_t rt_dc_motor_close(struct rt_device *dev)
 {
     RT_ASSERT(dev != RT_NULL);
-    
+
     return RT_EOK;
 }
 
@@ -38,13 +38,13 @@ static rt_err_t rt_dc_motor_control(struct rt_device *dev,
 
     RT_ASSERT(dev != RT_NULL);
     motor = (struct rt_dc_motor_device *)dev;
-    
+
     switch (cmd)
     {
     default :
         break;
     }
-    
+
     return RT_EOK;
 }
 
@@ -85,8 +85,8 @@ void dc_motor_forward(rt_dc_motor_t motor, rt_uint8_t ratio)
     }
     else
     {
-        rt_kprintf("%s: ratio(%d) larger than DC_MOTOR_RATIO_MAX(%d)\n", 
-            motor->parent.parent.name, ratio, DC_MOTOR_RATIO_MAX);
+        rt_kprintf("%s: ratio(%d) larger than DC_MOTOR_RATIO_MAX(%d)\n",
+                   motor->parent.parent.name, ratio, DC_MOTOR_RATIO_MAX);
     }
 }
 
@@ -101,8 +101,8 @@ void dc_motor_reverse(rt_dc_motor_t motor, rt_uint8_t ratio)
     }
     else
     {
-        rt_kprintf("%s: ratio(%d) larger than DC_MOTOR_RATIO_MAX(%d)\n", 
-            motor->parent.parent.name, ratio, DC_MOTOR_RATIO_MAX);
+        rt_kprintf("%s: ratio(%d) larger than DC_MOTOR_RATIO_MAX(%d)\n",
+                   motor->parent.parent.name, ratio, DC_MOTOR_RATIO_MAX);
     }
 }
 

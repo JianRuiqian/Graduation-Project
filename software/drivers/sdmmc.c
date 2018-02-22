@@ -263,7 +263,7 @@ static void stm32f4xx_sdio_completed_command(struct stm32f4xx_sdio *sdio, rt_uin
         else
         {
             if (status & (SDIO_IT_DCRCFAIL | SDIO_IT_DTIMEOUT |
-				SDIO_IT_RXOVERR | SDIO_IT_TXUNDERR))
+                          SDIO_IT_RXOVERR | SDIO_IT_TXUNDERR))
             {
                 if (data)
                 {
@@ -284,8 +284,8 @@ static void stm32f4xx_sdio_completed_command(struct stm32f4xx_sdio *sdio, rt_uin
             }
 
             sdio_dbg("error detected and set to %d/%d (cmd = %d),0x%08x\n",
-                       cmd->err, data ? data->err : 0,
-                       cmd->cmd_code, status);
+                     cmd->err, data ? data->err : 0,
+                     cmd->cmd_code, status);
         }
     }
     else
@@ -328,11 +328,11 @@ void SD_ProcessIRQSrc(void)
         if (SDIO_GetITStatus(SDIO_IT_DATAEND) != RESET)
         {
             SDIO_ClearITPendingBit(SDIO_IT_DATAEND);
-            if( (stm32f4_sdio->cmd->data->flags & DATA_DIR_READ) &&
-                ((uint32_t)stm32f4_sdio->cmd->data->buf & 0x03) )
+            if ((stm32f4_sdio->cmd->data->flags & DATA_DIR_READ) &&
+                    ((uint32_t)stm32f4_sdio->cmd->data->buf & 0x03))
             {
                 rt_memcpy(stm32f4_sdio->cmd->data->buf, rx_buf,
-                       stm32f4_sdio->cmd->data->blksize * stm32f4_sdio->cmd->data->blks);
+                          stm32f4_sdio->cmd->data->blksize * stm32f4_sdio->cmd->data->blks);
             }
             complete = 1;
         }
@@ -384,14 +384,14 @@ static void stm32f4xx_sdio_send_command(struct stm32f4xx_sdio *sdio, struct rt_m
             SDIO_DataInitStructure.SDIO_TransferMode = SDIO_TransferMode_Block;
         SDIO_DataInitStructure.SDIO_DPSM = SDIO_DPSM_Enable;
         SDIO_DataConfig(&SDIO_DataInitStructure);
-        if((uint32_t)data->buf & 0x03)
+        if ((uint32_t)data->buf & 0x03)
             SD_LowLevel_DMA_RxConfig((uint32_t *)rx_buf, data->blksize * data->blks);
         else
             SD_LowLevel_DMA_RxConfig((uint32_t *)data->buf, data->blksize * data->blks);
         SDIO_ITConfig(SDIO_IT_DCRCFAIL | SDIO_IT_DTIMEOUT | SDIO_IT_DATAEND | SDIO_IT_RXOVERR | SDIO_IT_STBITERR, ENABLE);
         SDIO_DMACmd(ENABLE);
     }
-    
+
     sdio->cmd = cmd;
 
     if (resp_type(cmd) == RESP_NONE)
@@ -597,13 +597,13 @@ int stm32f4xx_sdio_init(void)
     stm32f4_sdio->host = host;
 
     SDIO_StructInit(&SDIO_InitStructure);
-    
+
     /* SDIO Peripheral Low Level Init */
     SD_LowLevel_Init();
 
     SDIO_SetSDIOOperation(ENABLE);
     SDIO_ITConfig(SDIO_IT_SDIOIT, ENABLE);
-    
+
     NVIC_InitStructure.NVIC_IRQChannel = SDIO_IRQn;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;

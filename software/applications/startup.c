@@ -35,7 +35,7 @@ extern int  rt_application_init(void);
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void assert_failed(u8* file, u32 line)
+void assert_failed(u8 *file, u32 line)
 {
     rt_kprintf("\n\r Wrong parameter value detected on\r\n");
     rt_kprintf("       file  %s\r\n", file);

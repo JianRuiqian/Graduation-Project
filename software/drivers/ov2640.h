@@ -103,9 +103,9 @@ void OV2640_Contrast(uint8_t contrast);     //对比度设置
 void OV2640_Special_Effects(uint8_t eft);   //特效设置
 void OV2640_Color_Bar(uint8_t sw);          //彩条测试
 
-void OV2640_Window_Set(uint16_t sx, uint16_t sy, uint16_t width, uint16_t height);//设置图像输出窗口
-int  OV2640_OutSize_Set(uint16_t width, uint16_t height);   //设置图像输出大小
+void OV2640_Window_Set(uint16_t sx, uint16_t sy, uint16_t width, uint16_t height);      //设置图像输出窗口
+int  OV2640_OutSize_Set(uint16_t width, uint16_t height);                               //设置图像输出大小
 int  OV2640_ImageWin_Set(uint16_t offx, uint16_t offy, uint16_t width, uint16_t height);//设置图像开窗大小
-int  OV2640_ImageSize_Set(uint16_t width, uint16_t height); //设置图像尺寸大小
+int  OV2640_ImageSize_Set(uint16_t width, uint16_t height);                             //设置图像尺寸大小
 
 #endif  /* _OV2640_H_ */

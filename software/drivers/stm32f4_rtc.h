@@ -9,7 +9,7 @@
  *
  * Change Logs:
  * Date           Author       Notes
- * 2015-09-29     FlyM	       the first version
+ * 2015-09-29     FlyM         the first version
  */
 
 #ifndef __STM32F4_RTC_H__

@@ -22,10 +22,6 @@
 #include "gpio.h"
 #endif
 
-#ifdef RT_USING_SPI
-#include "spibus.h"
-#endif
-
 /**
  * @addtogroup STM32
  */
@@ -91,13 +87,13 @@ void SysTick_Handler(void)
 void rt_hw_us_delay(int us)
 {
 #define USECOND_PER_TICK (1000000 / RT_TICK_PER_SECOND)
-    
+
     rt_uint32_t delta = 0;
     rt_uint32_t pre_tick = SysTick->VAL;
     rt_uint32_t cur_tick;
-    
+
     RT_ASSERT(us < USECOND_PER_TICK);
-    
+
     us = us * (SysTick->LOAD / USECOND_PER_TICK);
     for (;;)
     {
@@ -107,7 +103,7 @@ void rt_hw_us_delay(int us)
         else
             delta += SysTick->LOAD + pre_tick - cur_tick;
         pre_tick = cur_tick;
-        
+
         if (delta >= us)
             return;
     }
@@ -124,8 +120,8 @@ void rt_hw_board_init()
     /* Configure the SysTick */
     SysTick_Configuration();
 
-    rt_system_heap_init((void*)STM32_SRAM_BEGIN, (void*)STM32_SRAM_END);
-    
+    rt_system_heap_init((void *)STM32_SRAM_BEGIN, (void *)STM32_SRAM_END);
+
 #ifdef RT_USING_COMPONENTS_INIT
     rt_components_board_init();
 #else
