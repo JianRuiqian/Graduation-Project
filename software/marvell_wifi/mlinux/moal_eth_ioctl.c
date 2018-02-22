@@ -10180,6 +10180,7 @@ woal_android_priv_cmd(struct net_device *dev, struct ifreq *req)
 		len = sprintf((char *)buf, "OK\n") + 1;
 	} else if (strncmp(buf, "SETSUSPENDMODE", strlen("SETSUSPENDMODE")) ==
 		   0) {
+#ifdef DEBUG_LEVEL1
 		/* it will be done by GUI */
 		if (woal_check_driver_status(priv->phandle)) {
 			PRINTM(MERROR,
@@ -10189,6 +10190,7 @@ woal_android_priv_cmd(struct net_device *dev, struct ifreq *req)
 		} else {
 			len = sprintf((char *)buf, "OK\n") + 1;
 		}
+#endif  /* DEBUG_LEVEL1 */
 	} else if (strncmp(buf, "BTCOEXMODE", strlen("BTCOEXMODE")) == 0) {
 		len = sprintf((char *)buf, "OK\n") + 1;
 	} else if (strncmp(buf, "BTCOEXSCAN-START", strlen("BTCOEXSCAN-START"))
