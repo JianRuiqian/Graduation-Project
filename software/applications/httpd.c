@@ -11,11 +11,6 @@ static struct mg_serve_http_opts httpd_opts;
 
 #include "dc_motor.h"
 
-#define CAR_FORWARD         "U"
-#define CAR_REVERSE         "D"
-#define CAR_TURN_LF         "L"
-#define CAR_TURN_RT         "R"
-
 rt_dc_motor_t motor_l, motor_r;
 rt_timer_t timer = RT_NULL;
 
@@ -28,34 +23,33 @@ static void timeout_handler(void *parameter)
 
 static void control_handler(void *data, int size)
 {
-    const rt_tick_t duration = rt_tick_from_millisecond(100);
+#define CAR_FORWARD "U"
+#define CAR_REVERSE "D"
+#define CAR_TURN_LF "L"
+#define CAR_TURN_RT "R"
 
     if (!strncmp(data, CAR_FORWARD, size))
     {
         dc_motor_forward(motor_l, 75);
         dc_motor_reverse(motor_r, 75);
-        rt_timer_control(timer, RT_TIMER_CTRL_SET_TIME, (void *)&duration);
         rt_timer_start(timer);
     }
     else if (!strncmp(data, CAR_REVERSE, size))
     {
         dc_motor_reverse(motor_l, 75);
         dc_motor_forward(motor_r, 75);
-        rt_timer_control(timer, RT_TIMER_CTRL_SET_TIME, (void *)&duration);
         rt_timer_start(timer);
     }
     else if (!strncmp(data, CAR_TURN_LF, size))
     {
         dc_motor_reverse(motor_l, 60);
         dc_motor_reverse(motor_r, 60);
-        rt_timer_control(timer, RT_TIMER_CTRL_SET_TIME, (void *)&duration);
         rt_timer_start(timer);
     }
     else if (!strncmp(data, CAR_TURN_RT, size))
     {
         dc_motor_forward(motor_l, 60);
         dc_motor_forward(motor_r, 60);
-        rt_timer_control(timer, RT_TIMER_CTRL_SET_TIME, (void *)&duration);
         rt_timer_start(timer);
     }
 }
@@ -105,11 +99,10 @@ void mg_httpd_thread_entry(void *args)
 
     mongoose_port_init();
     mg_mgr_init(&mgr, NULL);
-    printf("Starting web server on port %s\n", HTTPD_PORT_STR);
     nc = mg_bind(&mgr, HTTPD_PORT_STR, ev_handler);
     if (nc == NULL)
     {
-        printf("Failed to create listener\n");
+        printf("Failed to create listener on port:%s\n", HTTPD_PORT_STR);
         return;
     }
 
@@ -120,28 +113,36 @@ void mg_httpd_thread_entry(void *args)
 
     for (;;)
     {
-        mg_mgr_poll(&mgr, 1000);
+        mg_mgr_poll(&mgr, 200);
     }
-    mg_mgr_free(&mgr);
+//    mg_mgr_free(&mgr);
 }
 
 int mg_httpd_init(void)
 {
-    rt_thread_t tid;
+    {
+        motor_l = (rt_dc_motor_t)rt_device_find("motor1");
+        motor_r = (rt_dc_motor_t)rt_device_find("motor2");
+        rt_device_open((rt_device_t)motor_l, RT_DEVICE_OFLAG_RDWR);
+        rt_device_open((rt_device_t)motor_r, RT_DEVICE_OFLAG_RDWR);
+    }
 
-    motor_l = (rt_dc_motor_t)rt_device_find("motor1");
-    motor_r = (rt_dc_motor_t)rt_device_find("motor2");
+    {
+        const rt_tick_t timeout = rt_tick_from_millisecond(100);
 
-    rt_device_open((rt_device_t)motor_l, RT_DEVICE_OFLAG_RDWR);
-    rt_device_open((rt_device_t)motor_r, RT_DEVICE_OFLAG_RDWR);
+        timer = rt_timer_create("ctrl_tim", timeout_handler,
+                                RT_NULL, 0, RT_TIMER_FLAG_ONE_SHOT);
+        rt_timer_control(timer, RT_TIMER_CTRL_SET_TIME, (void *)&timeout);
+    }
 
-    timer = rt_timer_create("ctrl_tim", timeout_handler,
-                            RT_NULL, 0, RT_TIMER_FLAG_ONE_SHOT);
+    {
+        rt_thread_t tid;
 
-    tid = rt_thread_create("mg_httpd",
-                           mg_httpd_thread_entry, RT_NULL, 4096, 23, 50);
-    if (tid != RT_NULL)
-        rt_thread_startup(tid);
+        tid = rt_thread_create("mg_httpd",
+                               mg_httpd_thread_entry, RT_NULL, 4096, 23, 30);
+        if (tid != RT_NULL)
+            rt_thread_startup(tid);
+    }
 
     return 0;
 }
