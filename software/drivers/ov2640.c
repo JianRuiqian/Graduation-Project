@@ -417,9 +417,9 @@ int ov2640_init(void)
     }
 
     //初始化 OV2640,采用SVGA分辨率(800*600)
-    for (i = 0; i < sizeof(OV2640_SVGA) / 2; i++)
+    for (i = 0; i < sizeof(OV2640_UXGA) / 2; i++)
     {
-        ov2640_wreg(OV2640_SVGA[i][0], OV2640_SVGA[i][1]);
+        ov2640_wreg(OV2640_UXGA[i][0], OV2640_UXGA[i][1]);
     }
 
     return RT_EOK;

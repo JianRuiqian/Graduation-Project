@@ -1,4 +1,5 @@
 #include <rtthread.h>
+#include <rtdevice.h>
 #include <lwip/api.h>
 #include <lwip/inet.h>
 #include <lwip/sockets.h>
@@ -9,11 +10,13 @@
 /* -------------------------------------------------------------------------- */
 // <<< Use Configuration Wizard in Context Menu >>>
 //   <o> NETCAM_FIFO_SIZE (in KBytes) <0x01-0x40:1>
-#define NETCAM_FIFO_SIZE        40 * 1024
+#define NETCAM_FIFO_SIZE            12 * 1024
 //   <o> NETCAM_DEFAULT_PORT <0x400-0xffff:1>
-#define NETCAM_DEFAULT_PORT     8088
+#define NETCAM_DEFAULT_PORT         8088
 //   <o> NETCAM_THREAD_PRIORITY <0x01-0x20:1>
-#define NETCAM_THREAD_PRIORITY  24
+#define NETCAM_THREAD_PRIORITY      24
+//   <o> NETCAM_THREAD_STACK_SIZE (in Bytes) <0x100-0x800:0x100>
+#define NETCAM_THREAD_STACK_SIZE    512
 // <<< end of configuration section >>>
 
 //#define RT_NETCAM_DBG
@@ -42,10 +45,10 @@ static struct
         rt_uint8_t *tail;
     } frame;
 
-    rt_sem_t frame_ready;
+    struct rt_completion done;
 } netcam;
 
-static char g_send_buf[1024];
+static char g_send_buf[512];
 
 /* -------------------------------------------------------------------------- */
 static void _camera_open(void)
@@ -59,9 +62,11 @@ static void _camera_open(void)
 
     /* (re)config camera and start transfer */
     OV2640_JPEG_Mode();
-    OV2640_OutSize_Set(640, 480);
+    OV2640_OutSize_Set(320, 240);
     dcmi_xfer_config(netcam.fifo.buff, netcam.fifo.size);
     dcmi_xfer_start();
+
+    rt_completion_init(&netcam.done);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -100,7 +105,7 @@ void dcmi_interrupt_frame_callback(void)
     if (netcam.frame.head[0] == 0xff && netcam.frame.head[1] == 0xd8)
     {
         _camera_suspend();
-        rt_sem_release(netcam.frame_ready);
+        rt_completion_done(&netcam.done);
     }
     /* Skip the bad frame and point to next frame */
     else
@@ -281,7 +286,7 @@ static void netcam_thread_entry(void *parameter)
             /* open the camera */
             _camera_open();
 
-            while (rt_sem_take(netcam.frame_ready, 1000) == RT_EOK)
+            while (rt_completion_wait(&netcam.done, 1000) == RT_EOK)
             {
                 int err;
 
@@ -373,9 +378,9 @@ int netcam_init(void)
 {
     rt_thread_t tid;
 
-    netcam.frame_ready = rt_sem_create("frmrdy", 0, RT_IPC_FLAG_FIFO);
     tid = rt_thread_create("netcam", netcam_thread_entry,
-                           RT_NULL, 512, NETCAM_THREAD_PRIORITY, 10);
+                           RT_NULL, NETCAM_THREAD_STACK_SIZE,
+                           NETCAM_THREAD_PRIORITY, 10);
 
     if (tid != RT_NULL)
         rt_thread_startup(tid);
