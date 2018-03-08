@@ -31,7 +31,11 @@ static rt_err_t rt_dc_motor_close(struct rt_device *dev)
 }
 
 static rt_err_t rt_dc_motor_control(struct rt_device *dev,
+#if RTTHREAD_VERSION < 30000
                                     rt_uint8_t        cmd,
+#else
+                                    int               cmd,
+#endif
                                     void             *args)
 {
     struct rt_dc_motor_device *motor;

@@ -61,7 +61,9 @@ extern char __ICFEDIT_region_RAM_end__;
 //  <i>Default: 1
 #define STM32_CONSOLE_USART     1
 
+#if RTTHREAD_VERSION < 30000
 void rt_hw_us_delay(int us);
+#endif
 void rt_hw_board_init(void);
 
 #if STM32_CONSOLE_USART == 0

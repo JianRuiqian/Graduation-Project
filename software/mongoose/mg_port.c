@@ -33,6 +33,7 @@
 
 static rt_mutex_t mg_locker = NULL;
 
+#if RTTHREAD_VERSION < 30000
 int gettimeofday(struct timeval *tp, void *ignore)
 {
     rt_tick_t tick;
@@ -44,6 +45,7 @@ int gettimeofday(struct timeval *tp, void *ignore)
 
     return 0;
 }
+#endif
 
 /**
  * Mongoose Library port initialization

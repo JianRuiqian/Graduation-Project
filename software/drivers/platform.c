@@ -69,28 +69,6 @@ static void rt_hw_spi3_init(void)
 }
 #endif
 
-#ifdef PKG_USING_MARVELLWIFI
-static void rt_hw_wifi_reset(void)
-{
-    GPIO_InitTypeDef GPIO_InitStructure;
-
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-
-    /* PWDN: PD3 */
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
-    GPIO_Init(GPIOD, &GPIO_InitStructure);
-
-    /* hardware reset wifi card */
-    GPIO_ResetBits(GPIOD, GPIO_Pin_3);
-    rt_hw_us_delay(1000);
-    GPIO_SetBits(GPIOD, GPIO_Pin_3);
-}
-#endif  /* PKG_USING_MARVELLWIFI */
-
 void rt_platform_init(void)
 {
 #ifdef RT_USING_SPI
@@ -101,13 +79,7 @@ void rt_platform_init(void)
 #endif /* RT_USING_DFS */
 #endif /* RT_USING_SPI */
 
-#ifdef PKG_USING_MARVELLWIFI
-    rt_hw_wifi_reset();
-#endif  /* PKG_USING_MARVELLWIFI */
-
-#ifdef RT_USING_SDIO
+#if (defined RT_USING_SDIO) && (RTTHREAD_VERSION < 30000)
     rt_mmcsd_core_init();
-    stm32f4xx_sdio_init();
-    mmcsd_delay_ms(200);
 #endif  /* RT_USING_SDIO */
 }

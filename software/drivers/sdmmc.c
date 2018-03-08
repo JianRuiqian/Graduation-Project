@@ -621,6 +621,7 @@ err:
 
     return -RT_ENOMEM;
 }
+INIT_DEVICE_EXPORT(stm32f4xx_sdio_init);
 
 /*******************************************************************************
 * Function Name  : SDIO_IRQHandler

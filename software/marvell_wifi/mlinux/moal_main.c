@@ -6305,6 +6305,9 @@ __setup("mfg_mode=", mfg_mode_setup);
 
 int mwifi_system_init(void)
 {
+    /* wait for sdio host setup */
+    mdelay(200);
+    
     if(woal_init_module())
     {
         woal_cleanup_module();

@@ -12,10 +12,10 @@ if os.getenv('RTT_CC'):
 # EXEC_PATH is the compiler execute path, for example, CodeSourcery, Keil MDK, IAR
 if  CROSS_TOOL == 'gcc':
     PLATFORM 	= 'gcc'
-    EXEC_PATH 	= r'D:/MentorGraphics/Sourcery_CodeBench_Lite_for_ARM_EABI/bin'
+    EXEC_PATH 	= r'C:\Users\jianb\MentorGraphics\Sourcery_CodeBench_Lite_for_ARM_EABI\bin'
 elif CROSS_TOOL == 'keil':
     PLATFORM 	= 'armcc'
-    EXEC_PATH 	= r'D:/Keil_v5'
+    EXEC_PATH 	= r'C:/Keil_v5'
 elif CROSS_TOOL == 'iar':
     print '================ERROR============================'
     print 'Not support iar yet!'

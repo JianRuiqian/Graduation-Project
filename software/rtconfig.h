@@ -158,19 +158,22 @@
 #define RT_LWIP_IPADDR0     192
 #define RT_LWIP_IPADDR1     168
 #define RT_LWIP_IPADDR2     2
-#define RT_LWIP_IPADDR3     1
+#define RT_LWIP_IPADDR3     100
+#define RT_LWIP_IPADDR      "192.168.2.100"
 
 /* gateway address of target*/
 #define RT_LWIP_GWADDR0     192
 #define RT_LWIP_GWADDR1     168
 #define RT_LWIP_GWADDR2     2
 #define RT_LWIP_GWADDR3     1
+#define RT_LWIP_GWADDR      "192.168.2.1"
 
 /* mask address of target*/
 #define RT_LWIP_MSKADDR0    255
 #define RT_LWIP_MSKADDR1    255
 #define RT_LWIP_MSKADDR2    255
 #define RT_LWIP_MSKADDR3    0
+#define RT_LWIP_MSKADDR     "255.255.255.0"
 
 /* tcp thread options */
 #define RT_LWIP_TCPTHREAD_PRIORITY      12
@@ -200,7 +203,7 @@
 #define RT_USING_RYM
 
 /* SECTION: Marvell WiFi Driver */
-#define PKG_USING_MARVELLWIFI
+#define PKG_USING_WLANMARVELL
 /* MWIFI use Station */
 #define MARVELLWIFI_USING_STA
 #define MARVELLWIFI_STA_REASSOCIATION
