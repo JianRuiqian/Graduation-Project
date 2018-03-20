@@ -65,6 +65,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *p)
         printf("%p: %.*s %.*s\r\n", nc, (int) hm->method.len, hm->method.p,
                (int) hm->uri.len, hm->uri.p);
         mg_serve_http(nc, (struct http_message *) p, httpd_opts);
+//        nc->flags |= MG_F_SEND_AND_CLOSE;
         break;
     }
     case MG_EV_WEBSOCKET_HANDSHAKE_DONE:
@@ -121,8 +122,8 @@ void mg_httpd_thread_entry(void *args)
 int mg_httpd_init(void)
 {
     {
-        motor_l = (rt_dc_motor_t)rt_device_find("motor1");
-        motor_r = (rt_dc_motor_t)rt_device_find("motor2");
+        motor_l = (rt_dc_motor_t)rt_device_find("dcmotor1");
+        motor_r = (rt_dc_motor_t)rt_device_find("dcmotor2");
         rt_device_open((rt_device_t)motor_l, RT_DEVICE_OFLAG_RDWR);
         rt_device_open((rt_device_t)motor_r, RT_DEVICE_OFLAG_RDWR);
     }

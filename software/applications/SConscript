@@ -8,6 +8,7 @@ cwd = os.path.join(str(Dir('#')), 'applications')
 src	= Split('''
 application.c
 startup.c
+mnt.c
 ''')
 
 if GetDepend(['RT_USING_RYM']):

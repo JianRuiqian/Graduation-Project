@@ -3,8 +3,6 @@
 #include <dfs_posix.h>
 #include <stdlib.h>
 
-#include <board.h>
-
 struct custom_ctx
 {
     struct rym_ctx parent;

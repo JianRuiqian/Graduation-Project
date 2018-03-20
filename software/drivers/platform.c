@@ -1,14 +1,11 @@
 #include <rtthread.h>
 #include "board.h"
 
-#ifdef RT_USING_SDIO
-#include <drivers/mmcsd_core.h>
-#include "sdmmc.h"
-#endif
-
 #ifdef RT_USING_SPI
-#include "spibus.h"
+#include "drv_spi.h"
+#ifdef RT_USING_W25QXX
 #include "spi_flash_w25qxx.h"
+#endif
 
 /*
 SPI3_MOSI: PB5
@@ -69,17 +66,15 @@ static void rt_hw_spi3_init(void)
 }
 #endif
 
-void rt_platform_init(void)
+int rt_platform_init(void)
 {
 #ifdef RT_USING_SPI
     rt_hw_spi3_init();
-
-#ifdef RT_USING_DFS
+#ifdef RT_USING_W25QXX
     w25qxx_init("flash0", "spi30");
-#endif /* RT_USING_DFS */
+#endif /* RT_USING_W25QXX */
 #endif /* RT_USING_SPI */
 
-#if (defined RT_USING_SDIO) && (RTTHREAD_VERSION < 30000)
-    rt_mmcsd_core_init();
-#endif  /* RT_USING_SDIO */
+    return 0;
 }
+INIT_BOARD_EXPORT(rt_platform_init);
