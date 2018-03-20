@@ -8,6 +8,8 @@ src	= []
 
 if GetDepend(['MOTOR_USING_DC_MOTOR']):
     src += ['dc_motor.c']
+if GetDepend(['MOTOR_USING_SERVO']):
+    src += ['servo.c']
 
 CPPPATH = [cwd, str(Dir('#'))]
 

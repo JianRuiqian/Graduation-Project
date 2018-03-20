@@ -214,13 +214,19 @@
 /* Using Camera */
 #define RT_USING_CAMERA
 /* Camrea use ov2640 */
-#define RT_CAMERA_USING_OV2640
+#define CAMERA_USING_OV2640
 
 /* Using Motor framework */
 #define RT_USING_MOTOR
+/* Using DC Motor */
 #define MOTOR_USING_DC_MOTOR
 #define DC_MOTOR_USING_MOTOR1
 #define DC_MOTOR_USING_MOTOR2
+/* Using Servo */
+#define MOTOR_USING_SERVO
+#define SERVO_USING_MOTOR1
+#define SERVO_USING_MOTOR2
+#define SERVO_USING_MOTOR3
 
 /* Package: Mongoose */
 #define PKG_USING_MONGOOSE
