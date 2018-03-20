@@ -92,7 +92,6 @@
 #define OV2640_SENSOR_HISTO_LOW     0x61
 #define OV2640_SENSOR_HISTO_HIGH    0x62
 
-int  ov2640_init(void);                     //OV2640摄像头初始化
 void OV2640_JPEG_Mode(void);                //OV2640切换为JPEG模式
 void OV2640_RGB565_Mode(void);              //OV2640切换为RGB565模式
 void OV2640_Auto_Exposure(uint8_t level);   //OV2640自动曝光等级设置
@@ -107,5 +106,7 @@ void OV2640_Window_Set(uint16_t sx, uint16_t sy, uint16_t width, uint16_t height
 int  OV2640_OutSize_Set(uint16_t width, uint16_t height);                               //设置图像输出大小
 int  OV2640_ImageWin_Set(uint16_t offx, uint16_t offy, uint16_t width, uint16_t height);//设置图像开窗大小
 int  OV2640_ImageSize_Set(uint16_t width, uint16_t height);                             //设置图像尺寸大小
+
+int  rt_hw_ov2640_init(void);               //OV2640摄像头初始化
 
 #endif  /* _OV2640_H_ */
