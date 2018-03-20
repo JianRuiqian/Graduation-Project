@@ -4,8 +4,8 @@
 #include <lwip/inet.h>
 #include <lwip/sockets.h>
 /* TODO: remove these header files */
+#include "drv_dcmi.h"
 #include "ov2640.h"
-#include "dcmi.h"
 
 /* -------------------------------------------------------------------------- */
 // <<< Use Configuration Wizard in Context Menu >>>

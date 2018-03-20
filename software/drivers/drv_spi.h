@@ -1,5 +1,5 @@
 /*
- * File      : stm32f20x_40x_spi.h
+ * File      : drv_spi.h
  * This file is part of RT-Thread RTOS
  * COPYRIGHT (C) 2009 RT-Thread Develop Team
  *
@@ -12,8 +12,8 @@
  * 20012-01-01    aozima       first implementation.
  */
 
-#ifndef STM32F20X_40X_SPI_H_INCLUDED
-#define STM32F20X_40X_SPI_H_INCLUDED
+#ifndef __DRV_SPI_H__
+#define __DRV_SPI_H__
 
 #include <stdint.h>
 #include <rtthread.h>
@@ -52,4 +52,4 @@ rt_err_t stm32_spi_register(SPI_TypeDef *SPI,
                             struct stm32_spi_bus *stm32_spi,
                             const char *spi_bus_name);
 
-#endif // STM32F20X_40X_SPI_H_INCLUDED
+#endif /* __DRV_SPI_H__ */

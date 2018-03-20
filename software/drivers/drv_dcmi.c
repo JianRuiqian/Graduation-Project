@@ -1,6 +1,6 @@
 #include <rtthread.h>
 #include <board.h>
-#include "dcmi.h"
+#include "drv_dcmi.h"
 
 //#define DCMI_DMA_STREAM1
 #define DCMI_DMA_STREAM7

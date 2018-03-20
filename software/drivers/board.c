@@ -16,10 +16,10 @@
 #include <rtthread.h>
 
 #include "board.h"
-#include "usart.h"
+#include "drv_usart.h"
 
 #ifdef RT_USING_PIN
-#include "gpio.h"
+#include "drv_gpio.h"
 #endif
 
 /**
@@ -84,11 +84,7 @@ void SysTick_Handler(void)
     rt_interrupt_leave();
 }
 
-#if RTTHREAD_VERSION < 30000
-void rt_hw_us_delay(int us)
-#else
 void rt_hw_us_delay(rt_uint32_t us)
-#endif
 {
 #define USECOND_PER_TICK (1000000 / RT_TICK_PER_SECOND)
 

@@ -1,5 +1,5 @@
 /*
- * File      : gpio.c
+ * File      : drv_gpio.c
  * This file is part of RT-Thread RTOS
  * COPYRIGHT (C) 2015, RT-Thread Development Team
  *

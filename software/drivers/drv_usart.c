@@ -1,5 +1,5 @@
 /*
- * File      : usart.c
+ * File      : drv_usart.c
  * This file is part of RT-Thread RTOS
  * COPYRIGHT (C) 2009, RT-Thread Development Team
  *
@@ -16,11 +16,10 @@
  * 2016-05-28     armink       add DMA Rx mode
  */
 
-#include "stm32f4xx.h"
-#include "usart.h"
-#include "board.h"
-
 #include <rtdevice.h>
+
+#include "board.h"
+#include "drv_usart.h"
 
 #define RT_SERIAL_CONFIG                   \
 {                                          \

@@ -1,5 +1,5 @@
 /*
- * File      : stm32f4_rtc.c
+ * File      : drv_rtc.c
  * This file is stm32f4 rtc driver part of RT-Thread RTOS
  * COPYRIGHT (C) 2009, RT-Thread Development Team
  *
@@ -14,7 +14,7 @@
 #include <time.h>
 #include <rtthread.h>
 #include <stm32f4xx.h>
-#include "stm32f4_rtc.h"
+#include "drv_rtc.h"
 
 static int get_week(int year, int month, int day)
 {

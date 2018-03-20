@@ -1,5 +1,5 @@
-#ifndef _DCMI_H_
-#define _DCMI_H_
+#ifndef _DRV_DCMI_H_
+#define _DRV_DCMI_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,4 +18,4 @@ int  stm32_dcmi_init(void);
 }
 #endif
 
-#endif  /* _DCMI_H_ */
+#endif  /* _DRV_DCMI_H_ */

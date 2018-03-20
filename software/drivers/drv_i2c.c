@@ -1,6 +1,6 @@
 #include <rtthread.h>
-#include <board.h>
 #include <rtdevice.h>
+#include "board.h"
 
 #ifdef RT_USING_I2C_BITOPS
 

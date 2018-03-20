@@ -14,8 +14,8 @@
 
 #include <rtthread.h>
 #include <rtdevice.h>
-#include <board.h>
-#include "hwtimer.h"
+#include "board.h"
+#include "drv_hwtimer.h"
 
 #ifdef RT_USING_HWTIMER
 

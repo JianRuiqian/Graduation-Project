@@ -1,5 +1,5 @@
-#ifndef __STM32F4XX_SD_H__
-#define __STM32F4XX_SD_H__
+#ifndef __DRV_SDIO_H__
+#define __DRV_SDIO_H__
 
 #ifdef __cplusplus
 extern "C" {

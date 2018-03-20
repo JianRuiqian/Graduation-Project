@@ -1,5 +1,5 @@
 /*
- * File      : stm32f20x_40x_spi.c
+ * File      : drv_spi.c
  * This file is part of RT-Thread RTOS
  * COPYRIGHT (C) 2009 RT-Thread Develop Team
  *
@@ -13,7 +13,7 @@
  * 20012-07-27    aozima       fixed variable uninitialized.
  */
 
-#include "spibus.h"
+#include "drv_spi.h"
 
 /* private rt-thread spi ops function */
 static rt_err_t configure(struct rt_spi_device *device, struct rt_spi_configuration *configuration);
