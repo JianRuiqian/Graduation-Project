@@ -154,6 +154,8 @@
 /* the number of simulatenously active TCP connections*/
 #define RT_LWIP_TCP_PCB_NUM	5
 
+#define RT_LWIP_ETH_PAD_SIZE    2
+
 /* ip address of target*/
 #define RT_LWIP_IPADDR0     192
 #define RT_LWIP_IPADDR1     168
@@ -216,6 +218,7 @@
 /* Camrea use ov2640 */
 #define CAMERA_USING_OV2640
 
+/* SECTION: Motor */
 /* Using Motor framework */
 #define RT_USING_MOTOR
 /* Using DC Motor */
@@ -227,6 +230,12 @@
 #define SERVO_USING_MOTOR1
 #define SERVO_USING_MOTOR2
 #define SERVO_USING_MOTOR3
+
+/* Using ADC */
+#define RT_USING_ADC
+
+/* Using Controller */
+#define RT_USING_CONTROLLER
 
 /* Package: Mongoose */
 #define PKG_USING_MONGOOSE
