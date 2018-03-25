@@ -21,6 +21,8 @@ if GetDepend(['RT_USING_LWIP']):
     if GetDepend(['PKG_USING_MONGOOSE']):
         src += ['httpd.c']
 
+src += ['angle_adjuster.c']
+
 CPPPATH = [cwd, str(Dir('#'))]
 
 group = DefineGroup('Applications', src, depend = [''], CPPPATH = CPPPATH)
