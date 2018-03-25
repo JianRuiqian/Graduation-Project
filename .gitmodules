@@ -1,3 +1,3 @@
-[submodule "software\\marvellwifi"]
-	path = software\\marvellwifi
+[submodule "software/marvellwifi"]
+	path = software/marvellwifi
 	url = git@github.com:JianRuiqian/marvellwifi.git
