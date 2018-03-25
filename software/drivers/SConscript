@@ -32,6 +32,10 @@ if GetDepend('RT_USING_SPI'):
 if GetDepend('RT_USING_I2C'):
 	src += ['drv_i2c.c']
 
+# add adc drivers.
+if GetDepend('RT_USING_ADC'):
+	src += ['drv_adc.c']
+
 # add camera drivers.
 if GetDepend('RT_USING_CAMERA'):
     src += ['drv_dcmi.c']
@@ -43,7 +47,7 @@ if GetDepend('RT_USING_MOTOR'):
     if GetDepend('MOTOR_USING_DC_MOTOR'):
         src += ['hbridge.c']
     if GetDepend('MOTOR_USING_SERVO'):
-        src += ['servo.c']
+        src += ['mg995.c']
 
 CPPPATH = [cwd]
 

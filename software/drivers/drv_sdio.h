@@ -28,8 +28,8 @@ extern "C" {
 #define SD_SDIO_DMA                   DMA2
 #define SD_SDIO_DMA_CLK               RCC_AHB1Periph_DMA2
 
-#define SD_SDIO_DMA_STREAM3           3
-//#define SD_SDIO_DMA_STREAM6           6
+//#define SD_SDIO_DMA_STREAM3           3
+#define SD_SDIO_DMA_STREAM6           6
 
 #ifdef SD_SDIO_DMA_STREAM3
 #define SD_SDIO_DMA_STREAM            DMA2_Stream3
