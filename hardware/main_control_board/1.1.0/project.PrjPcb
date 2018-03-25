@@ -2298,14 +2298,6 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=IPSFQEND
 
-[GeneratedDocument1]
-DocumentPath=Project Outputs for project\Design Rule Check - main_control_board_1.1.html
-DItemRevisionGUID=
-
-[GeneratedDocument2]
-DocumentPath=Project Outputs for project\main_control_board_1.1.0.REP
-DItemRevisionGUID=
-
 [Configuration1]
 Name=Default Configuration
 ParameterCount=0
