@@ -1,4 +1,4 @@
-# Graduation_Project
+# Graduation Project
 **光伏动力智能巡逻机器人设计**  
 
 设计一款远程遥控智能巡逻机器人，要求：
