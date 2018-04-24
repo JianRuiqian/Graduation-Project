@@ -77,4 +77,4 @@ int rt_platform_init(void)
 
     return 0;
 }
-INIT_BOARD_EXPORT(rt_platform_init);
+INIT_DEVICE_EXPORT(rt_platform_init);
